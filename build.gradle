@@ -1,0 +1,59 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '2.0.1'
+    id 'java'
+    id 'idea'
+    id 'application'
+}
+
+group 'ml-java-setup'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile 'com.hierynomus:sshj:0.23.0'
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    compile group: 'net.sf.expectit', name: 'expectit-core', version: '0.8.3'
+    compile group: 'org.apache.commons', name: 'commons-configuration2', version: '2.2'
+    compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.3'
+    compile group: 'net.sf.expectit', name: 'expectit-core', version: '0.8.3'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.3.1'
+}
+
+/*
+
+
+
+group 'rdf4jml-loader'
+version '1.0-SNAPSHOT'
+
+mainClassName = 'Loader'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'org.apache.commons', name: 'commons-configuration2', version: '2.2'
+    compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.3'
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    compile group: 'com.marklogic', name: 'marklogic-rdf4j', version: '1.1.0'
+    compile group: 'com.burgstaller', name: 'okhttp-digest', version: '1.15'
+}
+
+
+ */
