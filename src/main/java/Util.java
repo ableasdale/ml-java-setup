@@ -75,6 +75,17 @@ public class Util {
         }
     }
 
+    protected static void closeSSHClient() {
+        if (CLIENT != null) {
+            try {
+                CLIENT.close();
+                CLIENT = null;
+            } catch (IOException e) {
+                LOG.error("IOException: ", e);
+            }
+        }
+    }
+
     protected static String execCmd(SSHClient client, String cmd) {
         String response = null;
         try {
