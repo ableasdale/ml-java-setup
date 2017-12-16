@@ -67,15 +67,40 @@ public class Util {
         Response response = null;
         try {
             response = getHttpClient().newCall(r).execute();
-            //LOG.debug(String.format("Cleared Database :: Client Response Status: %d", response.code()));
-            LOG.info(String.format("%s | %s", response.toString(), response.body().string()));
-
-            // can i close and still read the data?
+            LOG.debug(String.format("%s | %s", response.toString(), response.body().string()));
             response.close();
         } catch (IOException e) {
             LOG.error("Exception caught creating resource: ", e);
         }
         return response;
+    }
+
+    protected static String processHttpRequestAndGetBody(Request r) {
+        Response response = null;
+        String responseData = null;
+        try {
+            response = getHttpClient().newCall(r).execute();
+            //LOG.debug(String.format("%s | %s", response.toString(), response.body().string()));
+            responseData = response.body().string();
+            response.close();
+        } catch (IOException e) {
+            LOG.error("Exception caught creating resource: ", e);
+        }
+        return responseData;
+    }
+
+    protected static byte[] processHttpRequestAndGetBodyAsByteArray(Request r) {
+        Response response = null;
+        byte[] responseData = null;
+        try {
+            response = getHttpClient().newCall(r).execute();
+            //LOG.debug(String.format("%s | %s", response.toString(), response.body().string()));
+            responseData = response.body().bytes();
+            response.close();
+        } catch (IOException e) {
+            LOG.error("Exception caught creating resource: ", e);
+        }
+        return responseData;
     }
 
 
