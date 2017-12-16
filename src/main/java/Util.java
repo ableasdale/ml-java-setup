@@ -142,6 +142,35 @@ public class Util {
         return response;
     }
 
+    protected static String execSudoCmd(SSHClientConnection sshcc, String cmd) {
+        String response = null;
+        try {
+            Session session;
+            Session.Shell shell;
+            session = sshcc.getClient().startSession();
+            session.allocateDefaultPTY();
+            shell = session.startShell();
+            Expect expect = new ExpectBuilder()
+                    .withOutput(shell.getOutputStream())
+                    .withInputs(shell.getInputStream(), shell.getErrorStream())
+                    .build();
+            expect.sendLine(String.format("sudo %s", cmd));
+            expect.expect(contains(String.format("[sudo] password for %s:", Util.getConfiguration().getString("sshuser"))));
+            expect.sendLine(Util.getConfiguration().getString("supasswd"));
+            response = expect.expect(contains(String.format("[%s@%s ~]$", Util.getConfiguration().getString("sshuser"), sshcc.getHostName()))).getBefore();
+            expect.close();
+            session.close();
+        } catch (ConnectionException e) {
+            LOG.error("ConnectionException: ", e);
+        } catch (TransportException e) {
+            LOG.error("TransportException: ", e);
+        } catch (IOException e) {
+            LOG.error("IOException: ", e);
+        }
+        return response;
+    }
+
+
     protected static String execSudoCmd(SSHClient client, String cmd) {
         String response = null;
         try {
