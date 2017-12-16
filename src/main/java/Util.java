@@ -9,7 +9,10 @@ import net.schmizz.sshj.userauth.keyprovider.PKCS8KeyFile;
 import net.sf.expectit.Expect;
 import net.sf.expectit.ExpectBuilder;
 import org.apache.commons.configuration2.Configuration;
-import org.apache.commons.configuration2.builder.fluent.Configurations;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.convert.DefaultListDelimiterHandler;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +34,7 @@ public class Util {
     private static Configuration CONFIG = null;
     private static String HOSTNAME = Util.getConfiguration().getString("host").substring(0, Util.getConfiguration().getString("host").indexOf("."));
 
-    protected static void JcePolicyFix() {
+    protected static void jcePolicyFix() {
         try {
             // Hack for JCE Unlimited Strength
             // See: https://stackoverflow.com/questions/3425766/how-would-i-use-maven-to-install-the-jce-unlimited-strength-policy-files
@@ -41,6 +44,9 @@ public class Util {
             modifiersField.setAccessible(true);
             modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
             field.set(null, false);
+
+            // Add the BouncyCastle Security Provider - one time
+            Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
         } catch (IllegalAccessException e) {
             LOG.error("IllegalAccessException: ", e);
         } catch (ClassNotFoundException e) {
@@ -50,11 +56,31 @@ public class Util {
         }
     }
 
+    protected static SSHClient initializeHost(String hostname) {
+        SSHClient c = new SSHClient();
+        c.addHostKeyVerifier(new PromiscuousVerifier());
+        try {
+            c.connect(hostname);
+        } catch (IOException e) {
+            LOG.error("IOException: ", e);
+        }
+        PKCS8KeyFile keyFile = new PKCS8KeyFile();
+        keyFile.init(new File(Util.getConfiguration().getString("pemfile")));
+        try {
+            c.authPublickey(Util.getConfiguration().getString("sshuser"), keyFile);
+        } catch (UserAuthException e) {
+            LOG.error("UserAuthException: ", e);
+        } catch (TransportException e) {
+            LOG.error("TransportException: ", e);
+        }
+        return c;
+    }
+
+
     protected static SSHClient getSSHClient() {
         if (CLIENT != null) {
             return CLIENT;
         } else {
-            Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
             CLIENT = new SSHClient();
             CLIENT.addHostKeyVerifier(new PromiscuousVerifier());
             try {
@@ -80,6 +106,17 @@ public class Util {
             try {
                 CLIENT.close();
                 CLIENT = null;
+            } catch (IOException e) {
+                LOG.error("IOException: ", e);
+            }
+        }
+    }
+
+    protected static void closeSSHClient(SSHClient c) {
+        if (c != null) {
+            try {
+                c.close();
+                c = null;
             } catch (IOException e) {
                 LOG.error("IOException: ", e);
             }
@@ -137,10 +174,15 @@ public class Util {
         if (CONFIG != null) {
             return CONFIG;
         } else {
-            LOG.info("trying to get configuration for the first time");
-            Configurations configs = new Configurations();
+            LOG.debug("trying to get configuration for the first time");
             try {
-                CONFIG = configs.properties(new File("config.properties"));
+                Parameters params = new Parameters();
+                FileBasedConfigurationBuilder<PropertiesConfiguration> builder =
+                        new FileBasedConfigurationBuilder<PropertiesConfiguration>(
+                                PropertiesConfiguration.class).configure(params.fileBased()
+                                .setListDelimiterHandler(new DefaultListDelimiterHandler(','))
+                                .setFile(new File("config.properties")));
+                CONFIG = builder.getConfiguration();
             } catch (ConfigurationException cex) {
                 LOG.error("Configuration Exception: ", cex);
             }

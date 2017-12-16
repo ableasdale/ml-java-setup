@@ -26,7 +26,7 @@ public class InteractiveSSH {
 
         String hostname = Util.getConfiguration().getString("host").substring(0, Util.getConfiguration().getString("host").indexOf("."));
 
-        Util.JcePolicyFix();
+        Util.jcePolicyFix();
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
         SSHClient client = new SSHClient();
         client.addHostKeyVerifier(new PromiscuousVerifier());

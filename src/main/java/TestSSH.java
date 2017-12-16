@@ -9,7 +9,7 @@ public class TestSSH {
 
     public static void main(String[] args) {
 
-        Util.JcePolicyFix();
+        Util.jcePolicyFix();
 
         LOG.info(Util.execCmd(Util.getSSHClient(), "whoami"));
         //LOG.info(Util.execCmd(Util.getSSHClient(), "ls -lart"));
@@ -17,8 +17,9 @@ public class TestSSH {
         LOG.info(Util.execCmd(Util.getSSHClient(), "/usr/sbin/service MarkLogic status"));
         //LOG.info(Util.execCmd(Util.getSSHClient(), "/usr/local/sbin/mladmin"));
         // /usr/sbin/service MarkLogic pstack
-        //LOG.info(Util.execSudoCmd(Util.getSSHClient(), "/usr/sbin/service MarkLogic pstack"));
-        //LOG.info(Util.execSudoCmd(Util.getSSHClient(), "/usr/sbin/service MarkLogic pmap"));
+        LOG.info(Util.execSudoCmd(Util.getSSHClient(), "/usr/sbin/service MarkLogic pstack"));
+        LOG.info(Util.execSudoCmd(Util.getSSHClient(), "/usr/sbin/service MarkLogic pmap"));
+
         Util.closeSSHClient();
     }
 }
