@@ -1,3 +1,8 @@
+import com.burgstaller.okhttp.AuthenticationCacheInterceptor;
+import com.burgstaller.okhttp.CachingAuthenticatorDecorator;
+import com.burgstaller.okhttp.digest.CachingAuthenticator;
+import com.burgstaller.okhttp.digest.Credentials;
+import com.burgstaller.okhttp.digest.DigestAuthenticator;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.common.IOUtils;
 import net.schmizz.sshj.connection.ConnectionException;
@@ -8,6 +13,9 @@ import net.schmizz.sshj.userauth.UserAuthException;
 import net.schmizz.sshj.userauth.keyprovider.PKCS8KeyFile;
 import net.sf.expectit.Expect;
 import net.sf.expectit.ExpectBuilder;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
@@ -23,6 +31,8 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.security.Security;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import static net.sf.expectit.matcher.Matchers.contains;
@@ -30,9 +40,44 @@ import static net.sf.expectit.matcher.Matchers.contains;
 public class Util {
 
     private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private static SSHClient CLIENT = null;
+    private static SSHClient SSHCLIENT = null;
+    private static OkHttpClient HTTPCLIENT = null;
     private static Configuration CONFIG = null;
     private static String HOSTNAME = Util.getConfiguration().getString("host").substring(0, Util.getConfiguration().getString("host").indexOf("."));
+
+
+    protected static OkHttpClient getHttpClient(){
+        if (HTTPCLIENT != null) {
+            return HTTPCLIENT;
+        } else {
+            final DigestAuthenticator authenticator = new DigestAuthenticator(new Credentials(Util.getConfiguration().getString("mluser"), Util.getConfiguration().getString("mlpass")));
+            final Map<String, CachingAuthenticator> authCache = new ConcurrentHashMap<>();
+            HTTPCLIENT = new OkHttpClient.Builder()
+                    .connectTimeout(90, TimeUnit.MINUTES)
+                    .writeTimeout(90, TimeUnit.MINUTES)
+                    .readTimeout(90, TimeUnit.MINUTES)
+                    .authenticator(new CachingAuthenticatorDecorator(authenticator, authCache))
+                    .addInterceptor(new AuthenticationCacheInterceptor(authCache))
+                    .build();
+            return HTTPCLIENT;
+        }
+    }
+
+    protected static Response processHttpRequest(Request r) {
+        Response response = null;
+        try {
+            response = getHttpClient().newCall(r).execute();
+            //LOG.debug(String.format("Cleared Database :: Client Response Status: %d", response.code()));
+            LOG.info(String.format("%s | %s", response.toString(), response.body().string()));
+
+            // can i close and still read the data?
+            response.close();
+        } catch (IOException e) {
+            LOG.error("Exception caught creating resource: ", e);
+        }
+        return response;
+    }
+
 
     protected static void jcePolicyFix() {
         try {
@@ -78,34 +123,34 @@ public class Util {
 
 
     protected static SSHClient getSSHClient() {
-        if (CLIENT != null) {
-            return CLIENT;
+        if (SSHCLIENT != null) {
+            return SSHCLIENT;
         } else {
-            CLIENT = new SSHClient();
-            CLIENT.addHostKeyVerifier(new PromiscuousVerifier());
+            SSHCLIENT = new SSHClient();
+            SSHCLIENT.addHostKeyVerifier(new PromiscuousVerifier());
             try {
-                CLIENT.connect(Util.getConfiguration().getString("host"));
+                SSHCLIENT.connect(Util.getConfiguration().getString("host"));
             } catch (IOException e) {
                 LOG.error("IOException: ", e);
             }
             PKCS8KeyFile keyFile = new PKCS8KeyFile();
             keyFile.init(new File(Util.getConfiguration().getString("pemfile")));
             try {
-                CLIENT.authPublickey(Util.getConfiguration().getString("sshuser"), keyFile);
+                SSHCLIENT.authPublickey(Util.getConfiguration().getString("sshuser"), keyFile);
             } catch (UserAuthException e) {
                 LOG.error("UserAuthException: ", e);
             } catch (TransportException e) {
                 LOG.error("TransportException: ", e);
             }
-            return CLIENT;
+            return SSHCLIENT;
         }
     }
 
     protected static void closeSSHClient() {
-        if (CLIENT != null) {
+        if (SSHCLIENT != null) {
             try {
-                CLIENT.close();
-                CLIENT = null;
+                SSHCLIENT.close();
+                SSHCLIENT = null;
             } catch (IOException e) {
                 LOG.error("IOException: ", e);
             }
