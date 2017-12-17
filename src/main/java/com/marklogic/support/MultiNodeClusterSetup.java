@@ -20,6 +20,7 @@ public class MultiNodeClusterSetup {
 
         Util.jcePolicyFix();
         String[] hosts = Util.getConfiguration().getStringArray("hosts");
+        String[] databases = Util.getConfiguration().getStringArray("databases");
         List<SSHClientConnection> clientConnectionList = new ArrayList<>();
 
         // Part One
@@ -64,6 +65,12 @@ public class MultiNodeClusterSetup {
         // Part Three - join all additional nodes to the master host
         for (int i=1; i < hosts.length; i++) {
             MarkLogicConfig.addHostToCluster(hosts[i], hosts[0]);
+        }
+
+        // Part Four - configure Databases and Forests
+        /* curl --anyauth --user admin:admin -i -X POST -d'{"rest-api":{"name":"PrimaryApplication"}}' -H "Content-type: application/json" http://localhost:8002/LATEST/rest-apis */
+        for (String db : databases){
+            Util.processHttpRequest(Requests.createDatabase(hosts[0], db));
         }
 
     }

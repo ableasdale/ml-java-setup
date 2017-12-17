@@ -78,7 +78,7 @@ public class Util {
         return response;
     }
 
-    protected static String processHttpRequestAndGetBody(Request r) {
+    public static String processHttpRequestAndGetBody(Request r) {
         LOG.debug(String.format("URL: %s", r.url()));
         Response response = null;
         String responseData = null;

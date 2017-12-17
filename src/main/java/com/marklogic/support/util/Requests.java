@@ -58,4 +58,14 @@ public class Requests {
                 .build();
     }
 
+    /* Create a database */
+    /* curl --anyauth --user admin:admin -i -X POST -d'"{"rest-api":{"name":"PrimaryApplication"}}"' -H "Content-type: application/json" http://localhost:8002/LATEST/rest-apis */
+    public static Request createDatabase(String evalHost, String databaseName) {
+        return new Request.Builder()
+                .url(String.format("http://%s:8002/LATEST/rest-apis", evalHost))
+                .header("Accept", "application/json")
+                .post(RequestBody.create(MediaType.parse("application/json"), String.format("{\"rest-api\":{\"name\":\"%s\"}}", databaseName)))
+                .build();
+    }
+
 }
