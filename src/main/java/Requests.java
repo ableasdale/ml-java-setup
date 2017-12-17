@@ -1,5 +1,8 @@
 import okhttp3.*;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 public class Requests {
 
     protected static Request initMarkLogicNode(String hostname){
@@ -16,7 +19,6 @@ public class Requests {
                 .build();
     }
 
-
     /* Join Cluster 1. `$CURL -X GET -H "Accept: application/xml" http://${JOINING_HOST}:8001/admin/v1/server-config` */
     protected static Request getJoinerHostConfiguration(String joinerHost) {
         return new Request.Builder()
@@ -31,11 +33,17 @@ public class Requests {
             -H "Content-type: application/x-www-form-urlencoded" \
     http://${BOOTSTRAP_HOST}:8001/admin/v1/cluster-config */
 
-    protected static Request joinBootstrapHost(String bootstrapHost, String joinerConfiguration) {
-        return new Request.Builder()
-                .url(String.format("http://%s:8001/admin/v1/cluster-config", bootstrapHost))
-                .post(RequestBody.create(MediaType.parse("application/x-www-form-urlencoded"), String.format("group=Default&server-config=%s", joinerConfiguration)))
-                .build();
+    protected static Request joinBootstrapHost(String bootstrapHost, byte[] joinerConfiguration) {
+        Request r = null;
+        try {
+            r = new Request.Builder()
+                    .url(String.format("http://%s:8001/admin/v1/cluster-config", bootstrapHost))
+                    .post(RequestBody.create(MediaType.parse("application/x-www-form-urlencoded"), String.format("group=Default&server-config=%s", URLEncoder.encode(new String(joinerConfiguration), "UTF-8"))))
+                    .build();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return r;
     }
 
     /* Join Cluster 3. $CURL -X POST -H "Content-type: application/zip" \

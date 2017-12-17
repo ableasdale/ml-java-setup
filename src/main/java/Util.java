@@ -64,6 +64,7 @@ public class Util {
     }
 
     protected static Response processHttpRequest(Request r) {
+        LOG.debug(String.format("URL: %s", r.url()));
         Response response = null;
         try {
             response = getHttpClient().newCall(r).execute();
@@ -76,6 +77,7 @@ public class Util {
     }
 
     protected static String processHttpRequestAndGetBody(Request r) {
+        LOG.debug(String.format("URL: %s", r.url()));
         Response response = null;
         String responseData = null;
         try {
@@ -90,6 +92,7 @@ public class Util {
     }
 
     protected static byte[] processHttpRequestAndGetBodyAsByteArray(Request r) {
+        LOG.debug(String.format("URL: %s", r.url()));
         Response response = null;
         byte[] responseData = null;
         try {
