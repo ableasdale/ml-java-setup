@@ -1,8 +1,11 @@
+package com.marklogic.support.util;
+
 import com.burgstaller.okhttp.AuthenticationCacheInterceptor;
 import com.burgstaller.okhttp.CachingAuthenticatorDecorator;
 import com.burgstaller.okhttp.digest.CachingAuthenticator;
 import com.burgstaller.okhttp.digest.Credentials;
 import com.burgstaller.okhttp.digest.DigestAuthenticator;
+import com.marklogic.support.beans.SSHClientConnection;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.common.IOUtils;
 import net.schmizz.sshj.connection.ConnectionException;
@@ -45,8 +48,7 @@ public class Util {
     private static Configuration CONFIG = null;
     private static String HOSTNAME = Util.getConfiguration().getString("host").substring(0, Util.getConfiguration().getString("host").indexOf("."));
 
-
-    protected static OkHttpClient getHttpClient(){
+    public static OkHttpClient getHttpClient(){
         if (HTTPCLIENT != null) {
             return HTTPCLIENT;
         } else {
@@ -63,7 +65,7 @@ public class Util {
         }
     }
 
-    protected static Response processHttpRequest(Request r) {
+    public static Response processHttpRequest(Request r) {
         LOG.debug(String.format("URL: %s", r.url()));
         Response response = null;
         try {
@@ -107,7 +109,7 @@ public class Util {
     }
 
 
-    protected static void jcePolicyFix() {
+    public static void jcePolicyFix() {
         try {
             // Hack for JCE Unlimited Strength
             // See: https://stackoverflow.com/questions/3425766/how-would-i-use-maven-to-install-the-jce-unlimited-strength-policy-files
@@ -129,7 +131,7 @@ public class Util {
         }
     }
 
-    protected static SSHClient initializeHost(String hostname) {
+    public static SSHClient initializeHost(String hostname) {
         SSHClient c = new SSHClient();
         c.addHostKeyVerifier(new PromiscuousVerifier());
         try {
@@ -150,7 +152,7 @@ public class Util {
     }
 
 
-    protected static SSHClient getSSHClient() {
+    public static SSHClient getSSHClient() {
         if (SSHCLIENT != null) {
             return SSHCLIENT;
         } else {
@@ -174,7 +176,7 @@ public class Util {
         }
     }
 
-    protected static void closeSSHClient() {
+    public static void closeSSHClient() {
         if (SSHCLIENT != null) {
             try {
                 SSHCLIENT.close();
@@ -185,7 +187,7 @@ public class Util {
         }
     }
 
-    protected static void closeSSHClient(SSHClient c) {
+    public static void closeSSHClient(SSHClient c) {
         if (c != null) {
             try {
                 c.close();
@@ -196,7 +198,7 @@ public class Util {
         }
     }
 
-    protected static String execCmd(SSHClient client, String cmd) {
+    public static String execCmd(SSHClient client, String cmd) {
         String response = null;
         try {
             Session session = client.startSession();
@@ -215,7 +217,7 @@ public class Util {
         return response;
     }
 
-    protected static String execSudoCmd(SSHClientConnection sshcc, String cmd) {
+    public static String execSudoCmd(SSHClientConnection sshcc, String cmd) {
         String response = null;
         try {
             Session session;
@@ -272,7 +274,7 @@ public class Util {
         return response;
     }
 
-    protected static Configuration getConfiguration() {
+    public static Configuration getConfiguration() {
         if (CONFIG != null) {
             return CONFIG;
         } else {

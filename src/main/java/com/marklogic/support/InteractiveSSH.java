@@ -1,3 +1,6 @@
+package com.marklogic.support;
+
+import com.marklogic.support.util.Util;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.ConnectionException;
 import net.schmizz.sshj.connection.channel.direct.Session;
@@ -104,7 +107,7 @@ public class InteractiveSSH {
             LOG.error("IOException: ", e);
         }
 
-        //LOG.info(Util.execCmd(client, "whoami"));
+        //LOG.info(com.marklogic.support.Utilogic.support.util.Util.execCmd(client, "whoami"));
 
     }
 }

@@ -1,3 +1,5 @@
+package com.marklogic.support.beans;
+
 import net.schmizz.sshj.SSHClient;
 
 public class SSHClientConnection {

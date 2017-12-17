@@ -1,4 +1,4 @@
 .gradle
 .idea
 out
-/src/main/java/TestSSH2.java
+/src/main/java/com.marklogic.support.TestSSH2.java

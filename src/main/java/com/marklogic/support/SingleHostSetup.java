@@ -1,3 +1,6 @@
+package com.marklogic.support;
+
+import com.marklogic.support.util.Util;
 import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
