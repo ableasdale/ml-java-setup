@@ -1,4 +1,5 @@
+src/main/resources/config.properties
 .gradle
 .idea
 out
-/src/main/java/com.marklogic.support.TestSSH2.java
+
