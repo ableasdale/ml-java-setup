@@ -5,6 +5,7 @@ import com.marklogic.support.beans.SSHClientConnection;
 import com.marklogic.support.util.MarkLogicConfig;
 import com.marklogic.support.util.Requests;
 import com.marklogic.support.util.Util;
+import com.marklogic.support.util.XQueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,10 +67,13 @@ public class MultiNodeClusterSetup {
         }
 
         // Part Four - configure Databases and Forests
+        Util.processHttpRequest(Requests.createDatabaseForestsAndReplicas(hosts[0], XQueryBuilder.createDatabaseAndForests(hosts, databases, dataDirectory, forestsperhost)));
+
         /* curl --anyauth --user admin:admin -i -X POST -d'{"rest-api":{"name":"PrimaryApplication"}}' -H "Content-type: application/json" http://localhost:8002/LATEST/rest-apis */
-        for (String db : databases){
+        /*for (String db : databases){
             //Util.processHttpRequest(Requests.createDatabase(hosts[0], db));
-        }
+        }*/
+
         LOG.info(String.format("Configuration should now be complete; log into http://%s:8001 to inspect the cluster configuration.", hosts[0]));
 
     }

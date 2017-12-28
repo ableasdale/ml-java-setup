@@ -1,13 +1,15 @@
 package com.marklogic.support.util;
 
-import okhttp3.*;
+import okhttp3.MediaType;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 public class Requests {
 
-    public static Request initMarkLogicNode(String hostname){
+    public static Request initMarkLogicNode(String hostname) {
         return new Request.Builder()
                 .url(String.format("http://%s:8001/admin/v1/init", hostname))
                 .post(RequestBody.create(MediaType.parse("application/x-www-form-urlencoded"), ""))
@@ -65,6 +67,19 @@ public class Requests {
                 .url(String.format("http://%s:8002/LATEST/rest-apis", evalHost))
                 .header("Accept", "application/json")
                 .post(RequestBody.create(MediaType.parse("application/json"), String.format("{\"rest-api\":{\"name\":\"%s\", \"forests-per-host\": %d }}", databaseName, 1)))
+                .build();
+    }
+
+    /* Create Database, Forests and Replicas */
+    /* curl --anyauth --user user:password -X POST -i -d @./body.xqy \
+    -H "Content-type: application/x-www-form-urlencoded" \
+    -H "Accept: multipart/mixed; boundary=BOUNDARY" \
+    http://localhost:8000/v1/eval */
+    public static Request createDatabaseForestsAndReplicas(String bootstrapHost, String encodedXquery) {
+        return new Request.Builder()
+                .url(String.format("http://%s:8000/v1/eval", bootstrapHost))
+                .header("Accept", "multipart/mixed; boundary=BOUNDARY\"")
+                .post(RequestBody.create(MediaType.parse("application/x-www-form-urlencoded"), encodedXquery))
                 .build();
     }
 

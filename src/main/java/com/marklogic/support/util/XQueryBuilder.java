@@ -3,7 +3,9 @@ package com.marklogic.support.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.invoke.MethodHandles;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -19,19 +21,19 @@ public class XQueryBuilder {
     public static final String SAVE_CONFIG = "return admin:save-configuration($config);\n";
 
     public static String databaseCreate(String database) {
-        return "let $config := admin:database-create($config, \""+database+"\", xdmp:database(\"Security\"), xdmp:database(\"Schemas\"))\n";
+        return String.format("let $config := admin:database-create($config, \"%s\", xdmp:database(\"Security\"), xdmp:database(\"Schemas\"))\n", database);
     }
 
     public static String forestCreate(String forestname, String hostname, String dataDirectory) {
-        return "let $config := admin:forest-create($config, \""+forestname+"\", xdmp:host(\""+hostname+"\"), \""+dataDirectory+"\")\n";
+        return String.format("let $config := admin:forest-create($config, \"%s\", xdmp:host(\"%s\"), \"%s\")\n", forestname, hostname, dataDirectory);
     }
 
     public static String dbAttachForest(String database, String forestname) {
-        return "let $config := admin:database-attach-forest($config, xdmp:database(\""+database+"\"), xdmp:forest(\""+forestname+"\"))\n";
+        return String.format("let $config := admin:database-attach-forest($config, xdmp:database(\"%s\"), xdmp:forest(\"%s\"))\n", database, forestname);
     }
 
     public static String forestAddReplica(String forestname, String replicaforestname) {
-        return "let $config := admin:forest-add-replica($config, xdmp:forest(\""+forestname+"\"), xdmp:forest(\""+replicaforestname+"\"))\n";
+        return String.format("let $config := admin:forest-add-replica($config, xdmp:forest(\"%s\"), xdmp:forest(\"%s\"))\n", forestname, replicaforestname);
     }
 
     public static String createDatabaseAndForests(String[] hosts, String[] databases, String dataDirectory, int forestsperhost) {
@@ -54,7 +56,7 @@ public class XQueryBuilder {
             forestCount = 1;
             for (String h : hosts) {
                 for (int i=0; i<forestsperhost; i++){
-                    sb.append(forestCreate(db+"-"+forestCount, h, dataDirectory ));
+                    sb.append(forestCreate(String.format("%s-%d", db, forestCount), h, dataDirectory ));
                     forestCount++;
                 }
             }
@@ -68,7 +70,7 @@ public class XQueryBuilder {
             forestCount = 1;
             for (String r : hostList) {
                 for (int i=0; i<forestsperhost; i++){
-                    sb.append(forestCreate(db+"-"+forestCount+"-R", r, dataDirectory ));
+                    sb.append(forestCreate(String.format("%s-%d-R", db, forestCount), r, dataDirectory ));
                     forestCount++;
                 }
             }
@@ -79,28 +81,24 @@ public class XQueryBuilder {
         sb.append(IMPORT_ADMIN).append(GET_CONFIG);
         for (String db : databases){
             for(int i=1; i<forestCount; i++){
-                sb.append(dbAttachForest(db,  db+"-"+i));
+                sb.append(dbAttachForest(db, String.format("%s-%d", db, i)));
             }
         }
 
         // 5. Attach replica forest[s]
         for (String db : databases){
             for(int i=1; i<forestCount; i++){
-                sb.append(forestAddReplica(db+"-"+i,  db+"-"+i+"-R"));
+                sb.append(forestAddReplica(String.format("%s-%d", db, i), String.format("%s-%d-R", db, i)));
             }
         }
 
-        /*
-        for (int i=1; i<hosts.length; i++) {
-            for (int i=1; i<)
-            sb.append(forestCreate(db+"-"+forestCount, h, dataDirectory ));
-        }h*/
-
         sb.append(SAVE_CONFIG);
-
-        LOG.info(sb.toString());
-
-        return sb.toString();
+        try {
+            LOG.debug(URLEncoder.encode(sb.toString(), "UTF-8"));
+            return String.format("xquery=%s", URLEncoder.encode(sb.toString(), "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            LOG.error("UnsupportedEncodingException: ",e);
+            return sb.toString();
+        }
     }
-
 }
