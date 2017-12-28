@@ -57,10 +57,14 @@ public class MultiNodeClusterSetup {
         /* Placeholder until I write code to do the timestamp polling request... */
         try {
             // TODO - this may well be way too short!
-            Thread.sleep(1000);
+            Thread.sleep(2500);
         } catch (InterruptedException e) {
             LOG.error("Exception caught: ", e);
         }
+
+        // TODO - Set group level logging to debug
+        // admin:group-set-file-log-level($config, $groupid, "debug")
+        Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureBaseGroupSettings()));
 
         // Part Three - Join all additional nodes to the master host
         for (int i=1; i < hosts.length; i++) {
@@ -76,9 +80,10 @@ public class MultiNodeClusterSetup {
         }*/
 
         // Part Five - Create test data
+        // TODO - move this into a scheduled task
         for (String h : hosts) {
             for (String d : databases) {
-                Util.processHttpRequest(Requests.evaluateXQuery(h, XQueryBuilder.createSampleDocData(d)));
+               // Util.processHttpRequest(Requests.evaluateXQuery(h, XQueryBuilder.createSampleDocData(d)));
             }
         }
 

@@ -39,6 +39,19 @@ public class XQueryBuilder {
         return String.format("let $config := admin:forest-add-replica($config, xdmp:forest(\"%s\"), xdmp:forest(\"%s\"))\n", forestname, replicaforestname);
     }
 
+    public static String setGroupFileLogging(String loglevel){
+        return "let $config := admin:group-set-file-log-level($config, admin:group-get-id($config, \"Default\"), \""+loglevel+"\")";
+    }
+
+    public static String configureBaseGroupSettings(){
+        StringBuilder sb = new StringBuilder();
+        sb.append(XQUERY_10ML_DECL).append(IMPORT_ADMIN);
+        sb.append(GET_CONFIG);
+        sb.append(setGroupFileLogging("debug"));
+        sb.append(SAVE_CONFIG);
+        return prepareEncodedXQuery(sb);
+    }
+
     public static String createDatabaseAndForests(String[] hosts, String[] databases, String dataDirectory, int forestsperhost) {
         int forestCount = 1;
         List<String> hostList = Arrays.asList(hosts);
@@ -96,6 +109,10 @@ public class XQueryBuilder {
         }
 
         sb.append(SAVE_CONFIG);
+        return prepareEncodedXQuery(sb);
+    }
+
+    private static String prepareEncodedXQuery(StringBuilder sb) {
         try {
             LOG.debug(URLEncoder.encode(sb.toString(), "UTF-8"));
             return String.format("xquery=%s", URLEncoder.encode(sb.toString(), "UTF-8"));
