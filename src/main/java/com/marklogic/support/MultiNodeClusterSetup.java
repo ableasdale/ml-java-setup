@@ -68,7 +68,7 @@ public class MultiNodeClusterSetup {
         // Part Four - configure Databases and Forests
         /* curl --anyauth --user admin:admin -i -X POST -d'{"rest-api":{"name":"PrimaryApplication"}}' -H "Content-type: application/json" http://localhost:8002/LATEST/rest-apis */
         for (String db : databases){
-            Util.processHttpRequest(Requests.createDatabase(hosts[0], db));
+            //Util.processHttpRequest(Requests.createDatabase(hosts[0], db));
         }
         LOG.info(String.format("Configuration should now be complete; log into http://%s:8001 to inspect the cluster configuration.", hosts[0]));
 

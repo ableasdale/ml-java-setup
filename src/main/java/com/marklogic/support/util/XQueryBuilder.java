@@ -50,9 +50,9 @@ public class XQueryBuilder {
 
         // 2. Create master forest[s]
         sb.append(IMPORT_ADMIN).append(GET_CONFIG);
-        for (String h : hosts) {
-            for (String db : databases){
-                //forestCount = 1;
+        for (String db : databases){
+            forestCount = 1;
+            for (String h : hosts) {
                 for (int i=0; i<forestsperhost; i++){
                     sb.append(forestCreate(db+"-"+forestCount, h, dataDirectory ));
                     forestCount++;
@@ -63,9 +63,10 @@ public class XQueryBuilder {
         // 3. Create replica forest[s]
         forestCount = 1;
         Collections.rotate(hostList, 1);
-        for (String r : hostList) {
-            for (String db : databases){
 
+        for (String db : databases){
+            forestCount = 1;
+            for (String r : hostList) {
                 for (int i=0; i<forestsperhost; i++){
                     sb.append(forestCreate(db+"-"+forestCount+"-R", r, dataDirectory ));
                     forestCount++;
@@ -75,17 +76,16 @@ public class XQueryBuilder {
         sb.append(SAVE_CONFIG);
 
         // 4. Attach master forest[s]
-
         sb.append(IMPORT_ADMIN).append(GET_CONFIG);
         for (String db : databases){
-            for(int i=1; i<forestCount+1; i++){
+            for(int i=1; i<forestCount; i++){
                 sb.append(dbAttachForest(db,  db+"-"+i));
             }
         }
 
         // 5. Attach replica forest[s]
         for (String db : databases){
-            for(int i=1; i<forestCount+1; i++){
+            for(int i=1; i<forestCount; i++){
                 sb.append(forestAddReplica(db+"-"+i,  db+"-"+i+"-R"));
             }
         }
