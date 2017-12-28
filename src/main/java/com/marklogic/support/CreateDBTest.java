@@ -2,6 +2,7 @@ package com.marklogic.support;
 
 import com.marklogic.support.util.Requests;
 import com.marklogic.support.util.Util;
+import com.marklogic.support.util.XQueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,11 +15,15 @@ public class CreateDBTest {
 
         String[] hosts = Util.getConfiguration().getStringArray("hosts");
         String[] databases = Util.getConfiguration().getStringArray("databases");
+        int forestsperhost = Util.getConfiguration().getInt("forestsperhost");
+        String dataDirectory = Util.getConfiguration().getString("datadirectory");
 
+        /*
         for (String db : databases){
             String s = Util.processHttpRequestAndGetBody(Requests.createDatabase(hosts[0], db));
             LOG.info(s);
-        }
+        } */
+        XQueryBuilder.createDatabaseAndForests(hosts, databases, dataDirectory, forestsperhost);
 
 
     }

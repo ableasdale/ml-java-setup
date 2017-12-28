@@ -1,10 +1,10 @@
 package com.marklogic.support;
 
+import com.marklogic.support.actions.BaseSystemConfiguration;
 import com.marklogic.support.beans.SSHClientConnection;
 import com.marklogic.support.util.MarkLogicConfig;
 import com.marklogic.support.util.Requests;
 import com.marklogic.support.util.Util;
-import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,16 +25,17 @@ public class MultiNodeClusterSetup {
         Util.jcePolicyFix();
         String[] hosts = Util.getConfiguration().getStringArray("hosts");
         String[] databases = Util.getConfiguration().getStringArray("databases");
+        int forestsperhost = Util.getConfiguration().getInt("forestsperhost");
+        String dataDirectory = Util.getConfiguration().getString("datadirectory");
         List<SSHClientConnection> clientConnectionList = new ArrayList<>();
 
-        // Part One
+        // Part One: Base Configuration of all hosts over ssh
         for (String s : hosts) {
-            // TODO - can this be done in concurrent threads to speed things up.
             SSHClientConnection sshcc = new SSHClientConnection();
             sshcc.setName(s);
             sshcc.setClient(Util.initializeHost(s));
             clientConnectionList.add(sshcc);
-            es.submit(new BaseConfigurator(sshcc));
+            es.submit(new BaseSystemConfiguration(sshcc));
         }
 
         // Stop the thread pool
@@ -48,18 +49,18 @@ public class MultiNodeClusterSetup {
             }
         }
 
-        // Part Two - initialize the primary node using the MarkLogic ReST API
+        // Part Two - Initialize the primary node using the MarkLogic ReST API
         Util.processHttpRequest(Requests.configurePrimaryNode(hosts[0]));
         LOG.info(String.format("Master host (%s) should now be configured with the default databases", hosts[0]));
 
         /* Placeholder until I write code to do the timestamp polling request... */
         try {
-            Thread.sleep(1500);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            LOG.error("Exception caught: ", e);
         }
 
-        // Part Three - join all additional nodes to the master host
+        // Part Three - Join all additional nodes to the master host
         for (int i=1; i < hosts.length; i++) {
             MarkLogicConfig.addHostToCluster(hosts[i], hosts[0]);
         }
@@ -69,6 +70,7 @@ public class MultiNodeClusterSetup {
         for (String db : databases){
             Util.processHttpRequest(Requests.createDatabase(hosts[0], db));
         }
+        LOG.info(String.format("Configuration should now be complete; log into http://%s:8001 to inspect the cluster configuration.", hosts[0]));
 
     }
 }

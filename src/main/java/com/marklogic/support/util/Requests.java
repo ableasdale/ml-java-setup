@@ -64,7 +64,7 @@ public class Requests {
         return new Request.Builder()
                 .url(String.format("http://%s:8002/LATEST/rest-apis", evalHost))
                 .header("Accept", "application/json")
-                .post(RequestBody.create(MediaType.parse("application/json"), String.format("{\"rest-api\":{\"name\":\"%s\"}}", databaseName)))
+                .post(RequestBody.create(MediaType.parse("application/json"), String.format("{\"rest-api\":{\"name\":\"%s\", \"forests-per-host\": %d }}", databaseName, 1)))
                 .build();
     }
 

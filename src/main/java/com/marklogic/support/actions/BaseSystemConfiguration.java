@@ -1,4 +1,4 @@
-package com.marklogic.support;
+package com.marklogic.support.actions;
 
 import com.marklogic.support.beans.SSHClientConnection;
 import com.marklogic.support.util.Requests;
@@ -9,13 +9,12 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 
-public class BaseConfigurator implements Runnable {
+public class BaseSystemConfiguration implements Runnable {
 
     private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private SSHClientConnection sshcc;
 
-    public BaseConfigurator(SSHClientConnection sshcc) {
-        // LOG.info("GOT: "+sshcc.getName());
+    public BaseSystemConfiguration(SSHClientConnection sshcc) {
         this.sshcc = sshcc;
     }
 
@@ -30,8 +29,6 @@ public class BaseConfigurator implements Runnable {
         LOG.debug(Util.execSudoCmd(sshcc, "/usr/sbin/service MarkLogic stop"));
         LOG.debug(Util.execSudoCmd(sshcc, "rm -rf /var/opt/MarkLogic"));
         LOG.debug(Util.execSudoCmd(sshcc, "/usr/sbin/service MarkLogic start"));
-
-        //LOG.info(com.marklogic.support.Utilogic.support.util.Util.execCmd(sshcc.getClient(), "/usr/sbin/service MarkLogic stop"));
 
         // Test: dump out pstack to make sure we're really working
         // LOG.info(Util.execSudoCmd(sshcc, "/usr/sbin/service MarkLogic pstack"));
