@@ -3,9 +3,12 @@ package com.marklogic.support.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.invoke.MethodHandles;
 import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -101,4 +104,14 @@ public class XQueryBuilder {
             return sb.toString();
         }
     }
+
+    public static String createSampleDocData(String database){
+        try {
+            String content = new String(Files.readAllBytes(Paths.get("src/main/resources/test-data.xqy")));
+            return String.format("database=%s&xquery=%s", database, URLEncoder.encode(content, "UTF-8"));
+        } catch (IOException e) {
+            LOG.error("IOException: ",e);
+        }
+        return "Request Failed";
+    };
 }

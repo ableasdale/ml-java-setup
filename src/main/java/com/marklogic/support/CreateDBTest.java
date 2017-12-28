@@ -24,7 +24,7 @@ public class CreateDBTest {
             LOG.info(s);
         } */
         XQueryBuilder.createDatabaseAndForests(hosts, databases, dataDirectory, forestsperhost);
-
+       // XQueryBuilder.createSampleDocData();
 
     }
 }

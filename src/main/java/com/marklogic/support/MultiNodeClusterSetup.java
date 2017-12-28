@@ -56,6 +56,7 @@ public class MultiNodeClusterSetup {
 
         /* Placeholder until I write code to do the timestamp polling request... */
         try {
+            // TODO - this may well be way too short!
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             LOG.error("Exception caught: ", e);
@@ -67,12 +68,19 @@ public class MultiNodeClusterSetup {
         }
 
         // Part Four - configure Databases and Forests
-        Util.processHttpRequest(Requests.createDatabaseForestsAndReplicas(hosts[0], XQueryBuilder.createDatabaseAndForests(hosts, databases, dataDirectory, forestsperhost)));
+        Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.createDatabaseAndForests(hosts, databases, dataDirectory, forestsperhost)));
 
         /* curl --anyauth --user admin:admin -i -X POST -d'{"rest-api":{"name":"PrimaryApplication"}}' -H "Content-type: application/json" http://localhost:8002/LATEST/rest-apis */
         /*for (String db : databases){
             //Util.processHttpRequest(Requests.createDatabase(hosts[0], db));
         }*/
+
+        // Part Five - Create test data
+        for (String h : hosts) {
+            for (String d : databases) {
+                Util.processHttpRequest(Requests.evaluateXQuery(h, XQueryBuilder.createSampleDocData(d)));
+            }
+        }
 
         LOG.info(String.format("Configuration should now be complete; log into http://%s:8001 to inspect the cluster configuration.", hosts[0]));
 
