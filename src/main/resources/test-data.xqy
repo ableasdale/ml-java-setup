@@ -1,6 +1,6 @@
 xquery version "1.0-ml";
 
-for $x in (1 to 500)
+for $x in (1 to 1000)
 return xdmp:spawn-function(function() {
     for $i at $pos in 1 to 10
         return xdmp:document-insert(

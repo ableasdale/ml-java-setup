@@ -97,7 +97,7 @@ public class MultiNodeClusterSetup {
         }
 
         // Part Six - configure scheduled backups for databases
-        Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureScheduledMinutelyBackups(databases, backupDirectory, 10, 2)));
+        Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureScheduledMinutelyBackups(databases, backupDirectory, 2, 2)));
 
         LOG.info(String.format("Configuration should now be complete; log into http://%s:8001 to inspect the cluster configuration.", hosts[0]));
 
@@ -107,7 +107,7 @@ public class MultiNodeClusterSetup {
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
             JobDetail job = newJob(DataLoaderJob.class).withIdentity("job", "group").build();
-            Trigger trigger = newTrigger().withIdentity("trigger", "group").startNow().withSchedule(simpleSchedule().withIntervalInSeconds(300).repeatForever()).build();
+            Trigger trigger = newTrigger().withIdentity("trigger", "group").startNow().withSchedule(simpleSchedule().withIntervalInSeconds(30).repeatForever()).build();
             scheduler.scheduleJob(job, trigger);
             // TODO - do we want to scheduler.shutdown(); ??
         } catch (SchedulerException e) {
