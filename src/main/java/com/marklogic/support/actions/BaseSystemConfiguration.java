@@ -21,9 +21,9 @@ public class BaseSystemConfiguration implements Runnable {
     @Override
     public void run() {
         // Initial configuration checks
-        LOG.info(Util.execCmd(sshcc.getClient(), "uname -a"));
-        //LOG.info(Util.execCmd(sshcc.getClient(), "/usr/sbin/service MarkLogic status"));
-        LOG.info(Util.execCmd(sshcc.getClient(), "cat /proc/meminfo | grep AnonHugePages"));
+        LOG.debug(Util.execCmd(sshcc.getClient(), "uname -a"));
+        LOG.debug(Util.execCmd(sshcc.getClient(), "/usr/sbin/service MarkLogic status"));
+        LOG.debug(Util.execCmd(sshcc.getClient(), "cat /proc/meminfo | grep AnonHugePages"));
 
         // Completely clean all MarkLogic data on each of the three hosts
         LOG.debug(Util.execSudoCmd(sshcc, "/usr/sbin/service MarkLogic stop"));
