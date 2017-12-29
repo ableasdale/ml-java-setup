@@ -2,6 +2,7 @@ package com.marklogic.support;
 
 import com.marklogic.support.actions.BaseSystemConfiguration;
 import com.marklogic.support.beans.SSHClientConnection;
+import com.marklogic.support.jobs.ClusterInformationGathererJob;
 import com.marklogic.support.jobs.DataLoaderJob;
 import com.marklogic.support.util.MarkLogicConfig;
 import com.marklogic.support.util.Requests;
@@ -14,6 +15,7 @@ import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.swing.MenuItemLayoutHelper;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
@@ -39,6 +41,7 @@ public class MultiNodeClusterSetup {
         int forestsperhost = Util.getConfiguration().getInt("forestsperhost");
         String dataDirectory = Util.getConfiguration().getString("datadirectory");
         String backupDirectory = Util.getConfiguration().getString("backupdirectory");
+        String[] traceEvents = Util.getConfiguration().getStringArray("traceevents");
         List<SSHClientConnection> clientConnectionList = new ArrayList<>();
 
         // Part One: Base Configuration of all hosts over ssh
@@ -99,6 +102,9 @@ public class MultiNodeClusterSetup {
         // Part Six - configure scheduled backups for databases
         Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureScheduledMinutelyBackups(databases, backupDirectory, 2, 2)));
 
+        // Part Seven - configure trace events
+        Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureTraceEvents(traceEvents)));
+
         LOG.info(String.format("Configuration should now be complete; log into http://%s:8001 to inspect the cluster configuration.", hosts[0]));
 
         // Start the scheduled task to continually load new data
@@ -106,9 +112,15 @@ public class MultiNodeClusterSetup {
         try {
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
+            // Periodically load data
             JobDetail job = newJob(DataLoaderJob.class).withIdentity("job", "group").build();
             Trigger trigger = newTrigger().withIdentity("trigger", "group").startNow().withSchedule(simpleSchedule().withIntervalInSeconds(30).repeatForever()).build();
             scheduler.scheduleJob(job, trigger);
+            // Inspect the forest status
+            JobDetail job2 = newJob(ClusterInformationGathererJob.class).withIdentity("job2", "group").build();
+            Trigger trigger2 = newTrigger().withIdentity("trigger2", "group").startNow().withSchedule(simpleSchedule().withIntervalInSeconds(600).repeatForever()).build();
+            scheduler.scheduleJob(job2, trigger2);
+
             // TODO - do we want to scheduler.shutdown(); ??
         } catch (SchedulerException e) {
             LOG.error("Exception caught: ", e);
