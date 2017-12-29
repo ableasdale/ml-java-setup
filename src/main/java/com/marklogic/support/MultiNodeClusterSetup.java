@@ -2,10 +2,16 @@ package com.marklogic.support;
 
 import com.marklogic.support.actions.BaseSystemConfiguration;
 import com.marklogic.support.beans.SSHClientConnection;
+import com.marklogic.support.jobs.DataLoaderJob;
 import com.marklogic.support.util.MarkLogicConfig;
 import com.marklogic.support.util.Requests;
 import com.marklogic.support.util.Util;
 import com.marklogic.support.util.XQueryBuilder;
+import org.quartz.JobDetail;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +21,10 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import static org.quartz.JobBuilder.newJob;
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
+import static org.quartz.TriggerBuilder.newTrigger;
 
 public class MultiNodeClusterSetup {
 
@@ -28,6 +38,7 @@ public class MultiNodeClusterSetup {
         String[] databases = Util.getConfiguration().getStringArray("databases");
         int forestsperhost = Util.getConfiguration().getInt("forestsperhost");
         String dataDirectory = Util.getConfiguration().getString("datadirectory");
+        String backupDirectory = Util.getConfiguration().getString("backupdirectory");
         List<SSHClientConnection> clientConnectionList = new ArrayList<>();
 
         // Part One: Base Configuration of all hosts over ssh
@@ -62,12 +73,11 @@ public class MultiNodeClusterSetup {
             LOG.error("Exception caught: ", e);
         }
 
-        // TODO - Set group level logging to debug
-        // admin:group-set-file-log-level($config, $groupid, "debug")
+        // Set group level logging to debug : admin:group-set-file-log-level($config, $groupid, "debug")
         Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureBaseGroupSettings()));
 
         // Part Three - Join all additional nodes to the master host
-        for (int i=1; i < hosts.length; i++) {
+        for (int i = 1; i < hosts.length; i++) {
             MarkLogicConfig.addHostToCluster(hosts[i], hosts[0]);
         }
 
@@ -79,15 +89,30 @@ public class MultiNodeClusterSetup {
             //Util.processHttpRequest(Requests.createDatabase(hosts[0], db));
         }*/
 
-        // Part Five - Create test data
-        // TODO - move this into a scheduled task
+        // Part Five - Create initial test data
         for (String h : hosts) {
             for (String d : databases) {
-               // Util.processHttpRequest(Requests.evaluateXQuery(h, XQueryBuilder.createSampleDocData(d)));
+                Util.processHttpRequest(Requests.evaluateXQuery(h, XQueryBuilder.createSampleDocData(d)));
             }
         }
 
+        // Part Six - configure scheduled backups for databases
+        Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureScheduledMinutelyBackups(databases, backupDirectory, 10, 2)));
+
         LOG.info(String.format("Configuration should now be complete; log into http://%s:8001 to inspect the cluster configuration.", hosts[0]));
+
+        // Start the scheduled task to continually load new data
+
+        try {
+            Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
+            scheduler.start();
+            JobDetail job = newJob(DataLoaderJob.class).withIdentity("job", "group").build();
+            Trigger trigger = newTrigger().withIdentity("trigger", "group").startNow().withSchedule(simpleSchedule().withIntervalInSeconds(300).repeatForever()).build();
+            scheduler.scheduleJob(job, trigger);
+            // TODO - do we want to scheduler.shutdown(); ??
+        } catch (SchedulerException e) {
+            LOG.error("Exception caught: ", e);
+        }
 
     }
 }

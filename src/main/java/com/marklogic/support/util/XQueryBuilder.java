@@ -40,17 +40,36 @@ public class XQueryBuilder {
     }
 
     public static String setGroupFileLogging(String loglevel){
-        return "let $config := admin:group-set-file-log-level($config, admin:group-get-id($config, \"Default\"), \""+loglevel+"\")";
+        return String.format("let $config := admin:group-set-file-log-level($config, admin:group-get-id($config, \"Default\"), \"%s\")\n", loglevel);
+    }
+
+    public static String setBackgroundIoLimit(int value) {
+        return String.format("let $config := admin:group-set-background-io-limit($config, admin:group-get-id($config, \"Default\"), %d)\n", value);
+    }
+
+    public static String scheduleMinutelyBackup(String database, String backupDirectory, int interval, int numberOfBackupsToRetain) {
+        return String.format("let $config := admin:database-add-backup($config, xdmp:database(\"%s\"), admin:database-minutely-backup(\"%s\", %d, %d, true(), true(), true(), false()))\n", database, backupDirectory, interval, numberOfBackupsToRetain);
     }
 
     public static String configureBaseGroupSettings(){
         StringBuilder sb = new StringBuilder();
-        sb.append(XQUERY_10ML_DECL).append(IMPORT_ADMIN);
-        sb.append(GET_CONFIG);
+        sb.append(XQUERY_10ML_DECL).append(IMPORT_ADMIN).append(GET_CONFIG);
         sb.append(setGroupFileLogging("debug"));
+        sb.append(setBackgroundIoLimit(200));
         sb.append(SAVE_CONFIG);
         return prepareEncodedXQuery(sb);
     }
+
+    public static String configureScheduledMinutelyBackups(String[] databases, String backupDirectory, int interval, int numberOfBackupsToRetain) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(XQUERY_10ML_DECL).append(IMPORT_ADMIN).append(GET_CONFIG);
+        for (String db : databases){
+            sb.append(scheduleMinutelyBackup(db, backupDirectory, interval, numberOfBackupsToRetain));
+        }
+        sb.append(SAVE_CONFIG);
+        return prepareEncodedXQuery(sb);
+    }
+
 
     public static String createDatabaseAndForests(String[] hosts, String[] databases, String dataDirectory, int forestsperhost) {
         int forestCount = 1;

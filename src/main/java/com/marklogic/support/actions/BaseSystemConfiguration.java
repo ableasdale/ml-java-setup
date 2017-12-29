@@ -21,13 +21,15 @@ public class BaseSystemConfiguration implements Runnable {
     @Override
     public void run() {
         // Initial configuration checks
-        //LOG.info(Util.execCmd(sshcc.getClient(), "uname -a"));
+        LOG.info(Util.execCmd(sshcc.getClient(), "uname -a"));
         //LOG.info(Util.execCmd(sshcc.getClient(), "/usr/sbin/service MarkLogic status"));
-        //LOG.info(Util.execCmd(sshcc.getClient(), "cat /proc/meminfo | grep AnonHugePages"));
+        LOG.info(Util.execCmd(sshcc.getClient(), "cat /proc/meminfo | grep AnonHugePages"));
 
         // Completely clean all MarkLogic data on each of the three hosts
         LOG.debug(Util.execSudoCmd(sshcc, "/usr/sbin/service MarkLogic stop"));
         LOG.debug(Util.execSudoCmd(sshcc, "rm -rf /var/opt/MarkLogic"));
+        LOG.debug(Util.execSudoCmd(sshcc, String.format("rm -rf %s/Forests", Util.getConfiguration().getString("datadirectory"))));
+        LOG.debug(Util.execSudoCmd(sshcc, String.format("rm -rf %s/*", Util.getConfiguration().getString("backupdirectory"))));
         LOG.debug(Util.execSudoCmd(sshcc, "/usr/sbin/service MarkLogic start"));
 
         // Test: dump out pstack to make sure we're really working
