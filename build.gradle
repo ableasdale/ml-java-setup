@@ -5,6 +5,8 @@ plugins {
     id 'application'
 }
 
+mainClassName = 'com.marklogic.support.MultiNodeClusterSetup'
+
 group 'ml-java-setup'
 version '1.0-SNAPSHOT'
 
@@ -35,5 +37,5 @@ dependencies {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.3.1'
+    gradleVersion = '4.4.1'
 }
