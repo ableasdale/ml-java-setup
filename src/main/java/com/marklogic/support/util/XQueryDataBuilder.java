@@ -27,14 +27,14 @@ public class XQueryDataBuilder {
 
     public static String constructInnerDocumentInsertLoop(String[] indexes) {
         StringBuilder sb = new StringBuilder();
-        sb.append("for $i at $pos in 1 to 10\n");
+        sb.append("for $i at $pos in 1 to 1000\n");
         sb.append("return xdmp:document-insert(\n");
         sb.append("fn:concat(\"/\", xdmp:random(), \".xml\"),\n");
         sb.append("element test-data {\n");
 
         Iterator<String> stringIterator = Arrays.asList(indexes).iterator();
         while(stringIterator.hasNext()) {
-            sb.append("element "+stringIterator.next()+"{local:random-alpha-string(500)}");
+            sb.append("element "+stringIterator.next()+"{fn:string-join(for $i in 1 to xdmp:random(25) return local:random-alpha-string(35),\" \")}");
             if(stringIterator.hasNext()) {
                 sb.append(",\n");
             }
