@@ -17,14 +17,17 @@ public class CreateDBTest {
         String[] databases = Util.getConfiguration().getStringArray("databases");
         int forestsperhost = Util.getConfiguration().getInt("forestsperhost");
         String dataDirectory = Util.getConfiguration().getString("datadirectory");
+        String[] databaseIndexSettings = Util.getConfiguration().getStringArray("databaseindexes");
+        String[] databaseStringRangeIndexes = Util.getConfiguration().getStringArray("databasestringrangeindexes");
+
 
         /*
         for (String db : databases){
             String s = Util.processHttpRequestAndGetBody(Requests.createDatabase(hosts[0], db));
             LOG.info(s);
         } */
-        XQueryBuilder.createDatabaseAndForests(hosts, databases, dataDirectory, forestsperhost);
+        //XQueryBuilder.createDatabaseAndForests(hosts, databases, dataDirectory, forestsperhost);
        // XQueryBuilder.createSampleDocData();
-
+        LOG.info(XQueryBuilder.configureDatabaseStringRangeIndexes(databases, databaseStringRangeIndexes));
     }
 }

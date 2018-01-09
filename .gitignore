@@ -3,4 +3,5 @@ src/main/resources/config.properties
 .idea
 out
 build
+.DS_Store
 

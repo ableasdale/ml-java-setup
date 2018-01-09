@@ -46,6 +46,20 @@ public class XQueryBuilder {
         return String.format("let $config := admin:group-set-background-io-limit($config, admin:group-get-id($config, \"Default\"), %d)\n", value);
     }
 
+    /* admin:database-set-two-character-searches(
+$config as element(configuration),
+$database-id as xs:unsignedLong,
+$value as xs:boolean
+) as element(configuration)
+*/
+    public static String databaseSetTrue(String item, String database) {
+        return "let $config := admin:database-set-"+item+"( $config, xdmp:database(\""+database+"\"), fn:true() )\n";
+    }
+
+    public static String databaseConfigureStringRangeIndex(String item, String database) {
+        return "let $config := admin:database-set-"+item+"( $config, xdmp:database(\""+database+"\"), fn:true() )\n";
+    }
+
     public static String scheduleMinutelyBackup(String database, String backupDirectory, int interval, int numberOfBackupsToRetain) {
         return String.format("let $config := admin:database-add-backup($config, xdmp:database(\"%s\"), admin:database-minutely-backup(\"%s\", %d, %d, true(), true(), true(), false()))\n", database, backupDirectory, interval, numberOfBackupsToRetain);
     }
@@ -54,6 +68,36 @@ public class XQueryBuilder {
        return prepareEncodedXQuery(String.format("xdmp:forest-status(xdmp:database-forests(xdmp:database(\"%s\")))", database));
     }
 
+    public static String configureDatabaseIndexes(String[] databases, String[] indexes) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(XQUERY_10ML_DECL).append(IMPORT_ADMIN).append(GET_CONFIG);
+        for (String db : databases) {
+            for (String idx : indexes){
+                sb.append(databaseSetTrue(idx, db));
+            }
+        }
+        sb.append(SAVE_CONFIG);
+        return prepareEncodedXQuery(sb);
+    }
+
+    public static String configureDatabaseStringRangeIndexes(String[] databases, String[] indexes) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(XQUERY_10ML_DECL).append(IMPORT_ADMIN).append(GET_CONFIG);
+        for (String db : databases) {
+            sb.append("let $rangespec-"+db+" := (\n");
+            Iterator<String> stringIterator = Arrays.asList(indexes).iterator();
+            while(stringIterator.hasNext()) {
+                sb.append("admin:database-range-element-index(\"string\", (), \""+stringIterator.next()+"\", \"http://marklogic.com/collation/codepoint\", fn:false() )");
+                if(stringIterator.hasNext()) {
+                    sb.append(",\n");
+                }
+            }
+            sb.append(")\n");
+            sb.append("let $config := admin:database-add-range-element-index($config, xdmp:database(\""+db+"\"), $rangespec-"+db+")\n");
+        }
+        sb.append(SAVE_CONFIG);
+        return prepareEncodedXQuery(sb);
+    }
 
     public static String configureTraceEvents(String[] traceEvents) {
         StringBuilder sb = new StringBuilder();
@@ -91,7 +135,6 @@ public class XQueryBuilder {
         sb.append(SAVE_CONFIG);
         return prepareEncodedXQuery(sb);
     }
-
 
     public static String createDatabaseAndForests(String[] hosts, String[] databases, String dataDirectory, int forestsperhost) {
         int forestCount = 1;
@@ -176,6 +219,4 @@ public class XQueryBuilder {
         }
         return "Request Failed";
     }
-
-    ;
 }

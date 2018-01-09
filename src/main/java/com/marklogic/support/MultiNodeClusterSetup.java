@@ -15,7 +15,6 @@ import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.swing.MenuItemLayoutHelper;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
@@ -38,10 +37,13 @@ public class MultiNodeClusterSetup {
         Util.jcePolicyFix();
         String[] hosts = Util.getConfiguration().getStringArray("hosts");
         String[] databases = Util.getConfiguration().getStringArray("databases");
-        int forestsperhost = Util.getConfiguration().getInt("forestsperhost");
+        int forestsPerHost = Util.getConfiguration().getInt("forestsperhost");
         String dataDirectory = Util.getConfiguration().getString("datadirectory");
         String backupDirectory = Util.getConfiguration().getString("backupdirectory");
         String[] traceEvents = Util.getConfiguration().getStringArray("traceevents");
+        String[] databaseIndexSettings = Util.getConfiguration().getStringArray("databaseindexes");
+        String[] databaseStringRangeIndexes = Util.getConfiguration().getStringArray("databasestringrangeindexes");
+
         List<SSHClientConnection> clientConnectionList = new ArrayList<>();
 
         // Part One: Base Configuration of all hosts over ssh
@@ -84,8 +86,14 @@ public class MultiNodeClusterSetup {
             MarkLogicConfig.addHostToCluster(hosts[i], hosts[0]);
         }
 
-        // Part Four - configure Databases and Forests
-        Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.createDatabaseAndForests(hosts, databases, dataDirectory, forestsperhost)));
+        // Part Four (a) - configure Databases and Forests
+        Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.createDatabaseAndForests(hosts, databases, dataDirectory, forestsPerHost)));
+
+        // Part Four (b) - configure Database indexes
+        Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureDatabaseIndexes(databases, databaseIndexSettings)));
+
+        // Part Four (c) - create Range Indexes
+        Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureDatabaseStringRangeIndexes(databases, databaseStringRangeIndexes)));
 
         /* curl --anyauth --user admin:admin -i -X POST -d'{"rest-api":{"name":"PrimaryApplication"}}' -H "Content-type: application/json" http://localhost:8002/LATEST/rest-apis */
         /*for (String db : databases){
