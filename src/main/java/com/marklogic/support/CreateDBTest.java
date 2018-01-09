@@ -3,6 +3,7 @@ package com.marklogic.support;
 import com.marklogic.support.util.Requests;
 import com.marklogic.support.util.Util;
 import com.marklogic.support.util.XQueryBuilder;
+import com.marklogic.support.util.XQueryDataBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +29,8 @@ public class CreateDBTest {
         } */
         //XQueryBuilder.createDatabaseAndForests(hosts, databases, dataDirectory, forestsperhost);
        // XQueryBuilder.createSampleDocData();
-        LOG.info(XQueryBuilder.configureDatabaseStringRangeIndexes(databases, databaseStringRangeIndexes));
+        //LOG.info(XQueryBuilder.configureDatabaseStringRangeIndexes(databases, databaseStringRangeIndexes));
+    //LOG.info(XQueryDataBuilder.createComplexSampleDocData("foo"));
+
     }
 }

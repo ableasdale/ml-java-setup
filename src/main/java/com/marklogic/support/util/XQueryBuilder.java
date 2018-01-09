@@ -20,6 +20,7 @@ public class XQueryBuilder {
     public static final String IMPORT_ADMIN = "import module namespace admin = \"http://marklogic.com/xdmp/admin\" at \"/MarkLogic/admin.xqy\";\n";
     public static final String GET_CONFIG = "let $config := admin:get-configuration()\n";
     public static final String SAVE_CONFIG = "return admin:save-configuration($config);\n";
+
     private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public static String databaseCreate(String database) {
@@ -219,4 +220,5 @@ $value as xs:boolean
         }
         return "Request Failed";
     }
+
 }

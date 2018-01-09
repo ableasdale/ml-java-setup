@@ -4,10 +4,7 @@ import com.marklogic.support.actions.BaseSystemConfiguration;
 import com.marklogic.support.beans.SSHClientConnection;
 import com.marklogic.support.jobs.ClusterInformationGathererJob;
 import com.marklogic.support.jobs.DataLoaderJob;
-import com.marklogic.support.util.MarkLogicConfig;
-import com.marklogic.support.util.Requests;
-import com.marklogic.support.util.Util;
-import com.marklogic.support.util.XQueryBuilder;
+import com.marklogic.support.util.*;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -103,7 +100,8 @@ public class MultiNodeClusterSetup {
         // Part Five - Create initial test data
         for (String h : hosts) {
             for (String d : databases) {
-                Util.processHttpRequest(Requests.evaluateXQuery(h, XQueryBuilder.createSampleDocData(d)));
+                //Util.processHttpRequest(Requests.evaluateXQuery(h, XQueryBuilder.createSampleDocData(d)));
+                Util.processHttpRequest(Requests.evaluateXQuery(h, XQueryDataBuilder.createSampleDocData(d, databaseStringRangeIndexes)));
             }
         }
 
