@@ -35,6 +35,7 @@ public class MultiNodeClusterSetup {
         String[] hosts = Util.getConfiguration().getStringArray("hosts");
         String[] databases = Util.getConfiguration().getStringArray("databases");
         int forestsPerHost = Util.getConfiguration().getInt("forestsperhost");
+        int backgroundIOLimit = Util.getConfiguration().getInt("backgroundiolimit");
         String dataDirectory = Util.getConfiguration().getString("datadirectory");
         String backupDirectory = Util.getConfiguration().getString("backupdirectory");
         String[] traceEvents = Util.getConfiguration().getStringArray("traceevents");
@@ -76,7 +77,7 @@ public class MultiNodeClusterSetup {
         }
 
         // Set group level logging to debug : admin:group-set-file-log-level($config, $groupid, "debug")
-        Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureBaseGroupSettings()));
+        Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureBaseGroupSettings(backgroundIOLimit)));
 
         // Part Three - Join all additional nodes to the master host
         for (int i = 1; i < hosts.length; i++) {
@@ -98,12 +99,7 @@ public class MultiNodeClusterSetup {
         }*/
 
         // Part Five - Create initial test data
-        for (String h : hosts) {
-            for (String d : databases) {
-                //Util.processHttpRequest(Requests.evaluateXQuery(h, XQueryBuilder.createSampleDocData(d)));
-                Util.processHttpRequest(Requests.evaluateXQuery(h, XQueryDataBuilder.createSampleDocData(d, databaseStringRangeIndexes)));
-            }
-        }
+        Util.loadSampleDataIntoMarkLogic(hosts,databases,databaseStringRangeIndexes);
 
         // Part Six - configure scheduled backups for databases
         Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureScheduledMinutelyBackups(databases, backupDirectory, 2, 2)));

@@ -293,4 +293,15 @@ public class Util {
             return CONFIG;
         }
     }
+
+    public static void loadSampleDataIntoMarkLogic(String[] hosts, String[] databases, String[] databaseStringRangeIndexes) {
+        for (String h : hosts) {
+            for (String d : databases) {
+                Util.processHttpRequest(Requests.evaluateXQuery(h, XQueryDataBuilder.createSampleDocData(d, databaseStringRangeIndexes)));
+                //Util.processHttpRequest(Requests.evaluateXQuery(h, XQueryBuilder.createSampleDocData(d)));
+            }
+        }
+    }
+
+
 }

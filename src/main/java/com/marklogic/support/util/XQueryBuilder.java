@@ -118,11 +118,11 @@ $value as xs:boolean
         return prepareEncodedXQuery(sb);
     }
 
-    public static String configureBaseGroupSettings() {
+    public static String configureBaseGroupSettings(int backgroundIoLimit) {
         StringBuilder sb = new StringBuilder();
         sb.append(XQUERY_10ML_DECL).append(IMPORT_ADMIN).append(GET_CONFIG);
         sb.append(setGroupFileLogging("debug"));
-        sb.append(setBackgroundIoLimit(200));
+        sb.append(setBackgroundIoLimit(backgroundIoLimit));
         sb.append(SAVE_CONFIG);
         return prepareEncodedXQuery(sb);
     }
