@@ -4,6 +4,7 @@ import com.marklogic.support.actions.BaseSystemConfiguration;
 import com.marklogic.support.beans.SSHClientConnection;
 import com.marklogic.support.jobs.ClusterInformationGathererJob;
 import com.marklogic.support.jobs.DataLoaderJob;
+import com.marklogic.support.jobs.TripleDataLoaderJob;
 import com.marklogic.support.util.MarkLogicConfig;
 import com.marklogic.support.util.Requests;
 import com.marklogic.support.util.Util;
@@ -105,10 +106,10 @@ public class MultiNodeClusterSetupObsStd {
         Util.loadSampleDataIntoMarkLogic(hosts,databases,databaseStringRangeIndexes);
 
         // Part Six - configure scheduled backups for databases
-        Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureScheduledMinutelyBackups(databases, backupDirectory, 2, 2)));
+        // Commented out for now Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureScheduledMinutelyBackups(databases, backupDirectory, 2, 2)));
 
         // Part Seven - configure trace events
-        Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureTraceEvents(traceEvents)));
+        // Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureTraceEvents(traceEvents)));
 
         LOG.info(String.format("Configuration should now be complete; log into http://%s:8001 to inspect the cluster configuration.", hosts[0]));
 
@@ -117,10 +118,14 @@ public class MultiNodeClusterSetupObsStd {
         try {
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
-            // Periodically load data
+            // Periodically load doc data
             JobDetail job = newJob(DataLoaderJob.class).withIdentity("job", "group").build();
             Trigger trigger = newTrigger().withIdentity("trigger", "group").startNow().withSchedule(simpleSchedule().withIntervalInSeconds(30).repeatForever()).build();
             scheduler.scheduleJob(job, trigger);
+            // Periodically insert a batch of triples
+            JobDetail job1 = newJob(TripleDataLoaderJob.class).withIdentity("job1", "group").build();
+            Trigger trigger1 = newTrigger().withIdentity("trigger1", "group").startNow().withSchedule(simpleSchedule().withIntervalInSeconds(15).repeatForever()).build();
+            scheduler.scheduleJob(job1, trigger1);
             // Inspect the forest status
             JobDetail job2 = newJob(ClusterInformationGathererJob.class).withIdentity("job2", "group").build();
             Trigger trigger2 = newTrigger().withIdentity("trigger2", "group").startNow().withSchedule(simpleSchedule().withIntervalInSeconds(600).repeatForever()).build();

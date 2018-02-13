@@ -1,8 +1,10 @@
 package com.marklogic.support.util;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.invoke.MethodHandles;
@@ -211,14 +213,23 @@ $value as xs:boolean
         return prepareEncodedXQuery(sb.toString());
     }
 
-    public static String createSampleDocData(String database) {
+    public static String createSampleDocData(String database, String filename) {
         try {
-            String content = new String(Files.readAllBytes(Paths.get("src/main/resources/test-data.xqy")));
+            String content = new String(Files.readAllBytes(Paths.get(filename)));
             return String.format("database=%s&xquery=%s", database, URLEncoder.encode(content, "UTF-8"));
         } catch (IOException e) {
             LOG.error("IOException: ", e);
         }
         return "Request Failed";
+    }
+
+    public static void loadTripleDataIntoMarkLogic(String[] hosts, String[] databases) {
+        for (String h : hosts) {
+            for (String d : databases) {
+                Util.processHttpRequest(Requests.evaluateXQuery(h, createSampleDocData(d, "src/main/resources/create-random-triples.xqy") ));
+                //Util.processHttpRequest(Requests.evaluateXQuery(h, XQueryBuilder.createSampleDocData(d)));
+            }
+        }
     }
 
 }

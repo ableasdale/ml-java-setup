@@ -27,7 +27,7 @@ public class XQueryDataBuilder {
 
     public static String constructInnerDocumentInsertLoop(String[] indexes) {
         StringBuilder sb = new StringBuilder();
-        sb.append("for $i at $pos in 1 to 1000\n");
+        sb.append("for $i at $pos in 1 to 10\n");
         sb.append("return xdmp:document-insert(\n");
         sb.append("fn:concat(\"/\", xdmp:random(), \".xml\"),\n");
         sb.append("element test-data {\n");

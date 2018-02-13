@@ -3,11 +3,17 @@ package com.marklogic.support.util;
 import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.invoke.MethodHandles;
 import java.net.URLEncoder;
 
 public class Requests {
+
+    private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 
     public static Request initMarkLogicNode(String hostname) {
         return new Request.Builder()
@@ -76,6 +82,7 @@ public class Requests {
     -H "Accept: multipart/mixed; boundary=BOUNDARY" \
     http://localhost:8000/v1/eval */
     public static Request evaluateXQuery(String host, String encodedXquery) {
+        // LOG.info(encodedXquery);
         return new Request.Builder()
                 .url(String.format("http://%s:8000/v1/eval", host))
                 .header("Accept", "multipart/mixed; boundary=BOUNDARY")
