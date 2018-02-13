@@ -26,7 +26,11 @@ public class ClusterInformationGathererJob implements Job {
         for(String d : databases) {
             LOG.info(String.format("Dumping forest status for: %s", d));
             try {
-                FileUtils.writeStringToFile(new File(String.format("/tmp/%sforeststatus%d.xml", d, System.currentTimeMillis() / 1000L)), Util.processHttpRequestAndGetBody(Requests.evaluateXQuery(hosts[0], XQueryBuilder.getForestStatusForDatabase(d))), Charset.forName("UTF-8"));
+                String s = Util.processHttpRequestAndGetBody(Requests.evaluateXQuery(hosts[0], XQueryBuilder.getForestStatusForDatabase(d)));
+                if (s.contains("unclosed")){
+                    LOG.warn("*** Unclosed Stand found!");
+                }
+                FileUtils.writeStringToFile(new File(String.format("/tmp/%sforeststatus%d.xml", d, System.currentTimeMillis() / 1000L)), s, Charset.forName("UTF-8"));
             } catch (IOException e) {
                 LOG.error("IOException Caught",e);
             }
