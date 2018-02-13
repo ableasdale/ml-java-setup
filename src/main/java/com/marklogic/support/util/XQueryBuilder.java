@@ -1,10 +1,8 @@
 package com.marklogic.support.util;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.invoke.MethodHandles;
@@ -56,12 +54,13 @@ $value as xs:boolean
 ) as element(configuration)
 */
     public static String databaseSetTrue(String item, String database) {
-        return "let $config := admin:database-set-"+item+"( $config, xdmp:database(\""+database+"\"), fn:true() )\n";
+        return String.format("let $config := admin:database-set-%s( $config, xdmp:database(\"%s\"), fn:true() )\n", item, database);
     }
 
+    /*
     public static String databaseConfigureStringRangeIndex(String item, String database) {
         return "let $config := admin:database-set-"+item+"( $config, xdmp:database(\""+database+"\"), fn:true() )\n";
-    }
+    }*/
 
     public static String scheduleMinutelyBackup(String database, String backupDirectory, int interval, int numberOfBackupsToRetain) {
         return String.format("let $config := admin:database-add-backup($config, xdmp:database(\"%s\"), admin:database-minutely-backup(\"%s\", %d, %d, true(), true(), true(), false()))\n", database, backupDirectory, interval, numberOfBackupsToRetain);
@@ -213,7 +212,7 @@ $value as xs:boolean
         return prepareEncodedXQuery(sb.toString());
     }
 
-    public static String createSampleDocData(String database, String filename) {
+    public static String evaluateXQueryModuleAgainstDatabase(String database, String filename) {
         try {
             String content = new String(Files.readAllBytes(Paths.get(filename)));
             return String.format("database=%s&xquery=%s", database, URLEncoder.encode(content, "UTF-8"));
@@ -226,8 +225,7 @@ $value as xs:boolean
     public static void loadTripleDataIntoMarkLogic(String[] hosts, String[] databases) {
         for (String h : hosts) {
             for (String d : databases) {
-                Util.processHttpRequest(Requests.evaluateXQuery(h, createSampleDocData(d, "src/main/resources/create-random-triples.xqy") ));
-                //Util.processHttpRequest(Requests.evaluateXQuery(h, XQueryBuilder.createSampleDocData(d)));
+                Util.processHttpRequest(Requests.evaluateXQuery(h, evaluateXQueryModuleAgainstDatabase(d, "src/main/resources/create-random-triples.xqy") ));
             }
         }
     }

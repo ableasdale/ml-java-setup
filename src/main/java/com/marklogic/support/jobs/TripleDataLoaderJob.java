@@ -19,7 +19,7 @@ public class TripleDataLoaderJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        LOG.info("DataLoaderJob: Loading more triple data into MarkLogic Server...");
+        LOG.debug("DataLoaderJob: Loading more triple data into MarkLogic Server...");
         XQueryBuilder.loadTripleDataIntoMarkLogic(hosts,databases);
     }
 }

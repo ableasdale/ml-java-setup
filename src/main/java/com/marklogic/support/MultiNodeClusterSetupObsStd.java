@@ -106,7 +106,7 @@ public class MultiNodeClusterSetupObsStd {
         Util.loadSampleDataIntoMarkLogic(hosts,databases,databaseStringRangeIndexes);
 
         // Part Six - configure scheduled backups for databases
-        // Commented out for now Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureScheduledMinutelyBackups(databases, backupDirectory, 2, 2)));
+        Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureScheduledMinutelyBackups(databases, backupDirectory, 60, 2)));
 
         // Part Seven - configure trace events
         // Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureTraceEvents(traceEvents)));

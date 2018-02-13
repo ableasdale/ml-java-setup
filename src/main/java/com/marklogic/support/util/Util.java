@@ -297,7 +297,7 @@ public class Util {
         for (String h : hosts) {
             for (String d : databases) {
                 Util.processHttpRequest(Requests.evaluateXQuery(h, XQueryDataBuilder.createSampleDocData(d, databaseStringRangeIndexes)));
-                //Util.processHttpRequest(Requests.evaluateXQuery(h, XQueryBuilder.createSampleDocData(d)));
+                //Util.processHttpRequest(Requests.evaluateXQuery(h, XQueryBuilder.evaluateXQueryModuleAgainstDatabase(d)));
             }
         }
     }

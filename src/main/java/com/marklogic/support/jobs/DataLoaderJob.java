@@ -19,7 +19,7 @@ public class DataLoaderJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        LOG.info("DataLoaderJob: Loading more documents into MarkLogic Server...");
+        LOG.debug("DataLoaderJob: Loading more documents into MarkLogic Server...");
         Util.loadSampleDataIntoMarkLogic(hosts,databases,databaseStringRangeIndexes);
     }
 }
