@@ -16,12 +16,12 @@ import java.util.List;
 
 public class XQueryBuilder {
 
+    private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
     public static final String XQUERY_10ML_DECL = "xquery version \"1.0-ml\";\n\n";
     public static final String IMPORT_ADMIN = "import module namespace admin = \"http://marklogic.com/xdmp/admin\" at \"/MarkLogic/admin.xqy\";\n";
     public static final String GET_CONFIG = "let $config := admin:get-configuration()\n";
     public static final String SAVE_CONFIG = "return admin:save-configuration($config);\n";
-
-    private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public static String databaseCreate(String database) {
         return String.format("let $config := admin:database-create($config, \"%s\", xdmp:database(\"Security\"), xdmp:database(\"Schemas\"))\n", database);
@@ -85,16 +85,16 @@ $value as xs:boolean
         StringBuilder sb = new StringBuilder();
         sb.append(XQUERY_10ML_DECL).append(IMPORT_ADMIN).append(GET_CONFIG);
         for (String db : databases) {
-            sb.append("let $rangespec-"+db+" := (\n");
+            sb.append(String.format("let $rangespec-%s := (\n", db));
             Iterator<String> stringIterator = Arrays.asList(indexes).iterator();
             while(stringIterator.hasNext()) {
-                sb.append("admin:database-range-element-index(\"string\", (), \""+stringIterator.next()+"\", \"http://marklogic.com/collation/codepoint\", fn:false() )");
+                sb.append(String.format("admin:database-range-element-index(\"string\", (), \"%s\", \"http://marklogic.com/collation/codepoint\", fn:false() )", stringIterator.next()));
                 if(stringIterator.hasNext()) {
                     sb.append(",\n");
                 }
             }
             sb.append(")\n");
-            sb.append("let $config := admin:database-add-range-element-index($config, xdmp:database(\""+db+"\"), $rangespec-"+db+")\n");
+            sb.append(String.format("let $config := admin:database-add-range-element-index($config, xdmp:database(\"%s\"), $rangespec-%s)\n", db, db));
         }
         sb.append(SAVE_CONFIG);
         return prepareEncodedXQuery(sb);

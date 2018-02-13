@@ -34,7 +34,7 @@ public class XQueryDataBuilder {
 
         Iterator<String> stringIterator = Arrays.asList(indexes).iterator();
         while(stringIterator.hasNext()) {
-            sb.append("element "+stringIterator.next()+"{fn:string-join(for $i in 1 to xdmp:random(25) return local:random-alpha-string(35),\" \")}");
+            sb.append(String.format("element %s{fn:string-join(for $i in 1 to xdmp:random(25) return local:random-alpha-string(35),\" \")}", stringIterator.next()));
             if(stringIterator.hasNext()) {
                 sb.append(",\n");
             }

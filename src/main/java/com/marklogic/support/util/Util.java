@@ -108,7 +108,6 @@ public class Util {
         return responseData;
     }
 
-
     public static void jcePolicyFix() {
         try {
             // Hack for JCE Unlimited Strength

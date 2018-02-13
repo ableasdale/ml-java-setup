@@ -78,9 +78,8 @@ public class Requests {
     public static Request evaluateXQuery(String host, String encodedXquery) {
         return new Request.Builder()
                 .url(String.format("http://%s:8000/v1/eval", host))
-                .header("Accept", "multipart/mixed; boundary=BOUNDARY\"")
+                .header("Accept", "multipart/mixed; boundary=BOUNDARY")
                 .post(RequestBody.create(MediaType.parse("application/x-www-form-urlencoded"), encodedXquery))
                 .build();
     }
-
 }
