@@ -1,17 +1,23 @@
 package com.marklogic.support.jobs;
 
-import com.marklogic.support.util.Requests;
+import com.marklogic.support.beans.StatsTracker;
+import com.marklogic.support.providers.MarkLogicContentSourceProvider;
 import com.marklogic.support.providers.Statistics;
 import com.marklogic.support.util.Util;
-import com.marklogic.support.util.XQueryBuilder;
+import com.marklogic.xcc.Request;
+import com.marklogic.xcc.ResultSequence;
+import com.marklogic.xcc.Session;
+import com.marklogic.xcc.exceptions.RequestException;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.util.UUID;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class StatsCollationJob implements Job {
 
@@ -21,11 +27,23 @@ public class StatsCollationJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        // TODO - get XCC to return the necessary data and turn into the necessary Java Object
-        Statistics.getStatisticsMap().put("x"+UUID.randomUUID(), null);
-        LOG.info("Map Size: " + Statistics.getStatisticsMap().size());
 
         // Note: this is hardcoded to get the first item right now - this is okay for my current testing but should be fixed so we store these maps for each database and handle reporting accordingly (TODO)
-        LOG.info(Util.processHttpRequestAndGetBody(Requests.evaluateXQuery(hosts[0], XQueryBuilder.evaluateXQueryModuleAgainstDatabase(databases[0], "src/main/resources/create-stats-tracker-xml.xqy") )));
+        try {
+            Session s = MarkLogicContentSourceProvider.getInstance().getContentSource().newSession(databases[0]);
+            Request r = s.newAdhocQuery(new String(Files.readAllBytes(Paths.get("src/main/resources/create-stats-tracker-xml.xqy"))));
+            ResultSequence rs = s.submitRequest(r);
+            StatsTracker st = Util.createStatsObjectFromXml(rs.asString());
+            Statistics.getStatisticsMap().put(st.getDateTimeOnServer(), st);
+            LOG.info("Map Size: " + Statistics.getStatisticsMap().size());
+            rs.close();
+            s.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (RequestException e) {
+            e.printStackTrace();
+        }
+
+
     }
 }

@@ -6,9 +6,13 @@ import com.burgstaller.okhttp.digest.CachingAuthenticator;
 import com.burgstaller.okhttp.digest.Credentials;
 import com.burgstaller.okhttp.digest.DigestAuthenticator;
 import com.marklogic.support.beans.SSHClientConnection;
+import com.marklogic.support.beans.StatsTracker;
+import com.marklogic.support.handlers.Dashboard;
+import com.marklogic.support.handlers.Data;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
+import io.undertow.server.RoutingHandler;
 import io.undertow.util.Headers;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.common.IOUtils;
@@ -30,8 +34,12 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -308,18 +316,32 @@ public class Util {
         }
     }
 
+
+    // TODO - probably put this in a separate class?
+    public static final RoutingHandler ROUTES = new RoutingHandler()
+            .get("/", new Dashboard())
+            .get("/data", new Data("ff"));
+
+
     public static void startHttpServer(){
         Undertow server = Undertow.builder()
                 .addHttpListener(8080, "localhost")
-                .setHandler(new HttpHandler() {
-
-                    @Override
-                    public void handleRequest(final HttpServerExchange exchange) throws Exception {
-                        exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/html");
-                        exchange.getResponseSender().send(new String(Files.readAllBytes(Paths.get("src/main/resources/google-charts-html"))));
-                    }
-                }).build();
+                .setHandler(ROUTES)
+                .build();
         server.start();
+    }
+
+    public static StatsTracker createStatsObjectFromXml(String xml){
+        JAXBContext jaxbContext = null;
+        try {
+            jaxbContext = JAXBContext.newInstance(StatsTracker.class);
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            StringReader reader = new StringReader(xml);
+            return (StatsTracker) unmarshaller.unmarshal(reader);
+        } catch (JAXBException e) {
+            LOG.error("Unable to create Java Object from XML content from MarkLogic: "+xml,e);
+            return null;
+        }
     }
 
 
