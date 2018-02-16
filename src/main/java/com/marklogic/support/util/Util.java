@@ -16,9 +16,7 @@ import net.schmizz.sshj.userauth.UserAuthException;
 import net.schmizz.sshj.userauth.keyprovider.PKCS8KeyFile;
 import net.sf.expectit.Expect;
 import net.sf.expectit.ExpectBuilder;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import okhttp3.*;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
@@ -85,6 +83,8 @@ public class Util {
         try {
             response = getHttpClient().newCall(r).execute();
             //LOG.debug(String.format("%s | %s", response.toString(), response.body().string()));
+            ResponseBody body = response.body();
+            //MultipartBody.Part part1 = body.part(0);
             responseData = response.body().string();
             response.close();
         } catch (IOException e) {

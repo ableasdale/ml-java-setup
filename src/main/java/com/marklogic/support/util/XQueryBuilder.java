@@ -66,6 +66,14 @@ $value as xs:boolean
         return String.format("let $config := admin:database-add-backup($config, xdmp:database(\"%s\"), admin:database-minutely-backup(\"%s\", %d, %d, true(), true(), true(), false()))\n", database, backupDirectory, interval, numberOfBackupsToRetain);
     }
 
+    public static String scheduleMinutelyIncrementalBackup(String database, String backupDirectory, int interval) {
+        return String.format("let $config := admin:database-add-backup($config, xdmp:database(\"%s\"), admin:database-minutely-incremental-backup(\"%s\", %d, true(), true(), true(), false()))\n", database, backupDirectory, interval);
+    }
+
+    public static String scheduleHourlyBackup(String database, String backupDirectory, int interval, int numberOfBackupsToRetain) {
+        return String.format("let $config := admin:database-add-backup($config, xdmp:database(\"%s\"), admin:database-hourly-backup(\"%s\", %d, %d, true(), true(), true(), false()))\n", database, backupDirectory, interval, numberOfBackupsToRetain);
+    }
+
     public static String getForestStatusForDatabase(String database){
        return prepareEncodedXQuery(String.format("xdmp:forest-status(xdmp:database-forests(xdmp:database(\"%s\")))", database));
     }
@@ -137,6 +145,37 @@ $value as xs:boolean
         sb.append(SAVE_CONFIG);
         return prepareEncodedXQuery(sb);
     }
+
+    // TODO - refactor later
+    public static String configureScheduledMinutelyIncrementalBackups(String[] databases, String backupDirectory, int interval) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(XQUERY_10ML_DECL).append(IMPORT_ADMIN).append(GET_CONFIG);
+        for (String db : databases) {
+            sb.append(scheduleMinutelyIncrementalBackup(db, backupDirectory, interval));
+        }
+        sb.append(SAVE_CONFIG);
+        return prepareEncodedXQuery(sb);
+    }
+
+    public static String createInitialBackup(String[] databases, String backupDirectory) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(XQUERY_10ML_DECL);
+        for (String db : databases) {
+            sb.append(String.format("xdmp:database-backup(xdmp:database-forests(xdmp:database(\"%s\")), \"%s\")\n", db, backupDirectory));
+        /* xdmp:database-backup(
+        $forestIDs as xs:unsignedLong*,
+                $pathname as xs:string,
+   [$journal-archiving as xs:boolean?],
+   [$journal-archive-path as xs:string?],
+   [$lag-limit as xs:unsignedLong?],
+   [$backup-kek-id as xs:string?],
+   [$backup-passphrase as xs:string?]
+) as xs:unsignedLong */
+        }
+        LOG.info(sb.toString());
+        return prepareEncodedXQuery(sb);
+    }
+
 
     public static String createDatabaseAndForests(String[] hosts, String[] databases, String dataDirectory, int forestsperhost) {
         int forestCount = 1;
@@ -229,5 +268,6 @@ $value as xs:boolean
             }
         }
     }
+
 
 }

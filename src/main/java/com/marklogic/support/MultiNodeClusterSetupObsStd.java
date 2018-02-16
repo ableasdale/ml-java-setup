@@ -2,8 +2,10 @@ package com.marklogic.support;
 
 import com.marklogic.support.actions.BaseSystemConfiguration;
 import com.marklogic.support.beans.SSHClientConnection;
+import com.marklogic.support.beans.StatsTracker;
 import com.marklogic.support.jobs.ClusterInformationGathererJob;
 import com.marklogic.support.jobs.DataLoaderJob;
+import com.marklogic.support.jobs.StatsCollationJob;
 import com.marklogic.support.jobs.TripleDataLoaderJob;
 import com.marklogic.support.util.MarkLogicConfig;
 import com.marklogic.support.util.Requests;
@@ -18,8 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -32,6 +33,9 @@ public class MultiNodeClusterSetupObsStd {
 
     private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private static ExecutorService es = Executors.newFixedThreadPool(64);
+
+    // TODO - pass in the stats Tracker?
+    private static Map<Date, StatsTracker> statsTrackerMap = new LinkedHashMap<Date, StatsTracker>();
 
     public static void main(String[] args) {
 
@@ -75,7 +79,7 @@ public class MultiNodeClusterSetupObsStd {
         /* Placeholder until I write code to do the timestamp polling request... */
         try {
             // TODO - this may well be way too short!
-            Thread.sleep(2500);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             LOG.error("Exception caught: ", e);
         }
@@ -105,8 +109,25 @@ public class MultiNodeClusterSetupObsStd {
         // Part Five - Create initial test data
         Util.loadSampleDataIntoMarkLogic(hosts,databases,databaseStringRangeIndexes);
 
-        // Part Six - configure scheduled backups for databases
-        Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureScheduledMinutelyBackups(databases, backupDirectory, 60, 2)));
+        // Sleep before initial backup?
+        try {
+            // TODO - this may well be way too short!
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            LOG.error("Exception caught: ", e);
+        }
+
+        // Part Six - create base backup and create scheduled incremental backups for databases
+        LOG.info("About to create the initial backup");
+        Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.createInitialBackup(databases, backupDirectory)));
+                //admin:database-minutely-incremental-backup
+        try {
+            // TODO - this may well be way too short!
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            LOG.error("Exception caught: ", e);
+        }
+        Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureScheduledMinutelyIncrementalBackups(databases, backupDirectory, 2)));
 
         // Part Seven - configure trace events
         // Util.processHttpRequest(Requests.evaluateXQuery(hosts[0], XQueryBuilder.configureTraceEvents(traceEvents)));
@@ -126,6 +147,13 @@ public class MultiNodeClusterSetupObsStd {
             JobDetail job1 = newJob(TripleDataLoaderJob.class).withIdentity("job1", "group").build();
             Trigger trigger1 = newTrigger().withIdentity("trigger1", "group").startNow().withSchedule(simpleSchedule().withIntervalInSeconds(15).repeatForever()).build();
             scheduler.scheduleJob(job1, trigger1);
+
+            // Dump statistics to stdout
+            JobDetail job2a = newJob(StatsCollationJob.class).withIdentity("job2a", "group").build();
+            Trigger trigger2a = newTrigger().withIdentity("trigger2a", "group").startNow().withSchedule(simpleSchedule().withIntervalInSeconds(60).repeatForever()).build();
+            scheduler.scheduleJob(job2a, trigger2a);
+
+
             // Inspect the forest status
             JobDetail job2 = newJob(ClusterInformationGathererJob.class).withIdentity("job2", "group").build();
             Trigger trigger2 = newTrigger().withIdentity("trigger2", "group").startNow().withSchedule(simpleSchedule().withIntervalInSeconds(600).repeatForever()).build();
