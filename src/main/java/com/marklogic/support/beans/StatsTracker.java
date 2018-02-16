@@ -1,6 +1,5 @@
 package com.marklogic.support.beans;
 
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -8,6 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class StatsTracker {
 
     private String dateTimeOnServer;
+    private String ageOfEarliestDateTime;
     private long totalDocs;
     private long totalTriples;
     private long totalUniqueSubjects;
@@ -16,6 +16,7 @@ public class StatsTracker {
     private int totalUnclosedStands;
     private String earliestDateTime;
     private String earliestDateTimeRange;
+    private String latestDateTimeRange;
     private String idOfEarliestStand;
     private String pathOfEarliestStand;
     private String rawOutput;
@@ -24,14 +25,25 @@ public class StatsTracker {
         return dateTimeOnServer;
     }
 
+    @XmlElement
     public void setDateTimeOnServer(String dateTimeOnServer) {
         this.dateTimeOnServer = dateTimeOnServer;
+    }
+
+    public String getAgeOfEarliestDateTime() {
+        return ageOfEarliestDateTime;
+    }
+
+    @XmlElement
+    public void setAgeOfEarliestDateTime(String ageOfEarliestDateTime) {
+        this.ageOfEarliestDateTime = ageOfEarliestDateTime;
     }
 
     public long getTotalDocs() {
         return totalDocs;
     }
 
+    @XmlElement
     public void setTotalDocs(long totalDocs) {
         this.totalDocs = totalDocs;
     }
@@ -40,6 +52,7 @@ public class StatsTracker {
         return totalTriples;
     }
 
+    @XmlElement
     public void setTotalTriples(long totalTriples) {
         this.totalTriples = totalTriples;
     }
@@ -48,6 +61,7 @@ public class StatsTracker {
         return totalUniqueSubjects;
     }
 
+    @XmlElement
     public void setTotalUniqueSubjects(long totalUniqueSubjects) {
         this.totalUniqueSubjects = totalUniqueSubjects;
     }
@@ -56,6 +70,7 @@ public class StatsTracker {
         return totalUniquePredicates;
     }
 
+    @XmlElement
     public void setTotalUniquePredicates(long totalUniquePredicates) {
         this.totalUniquePredicates = totalUniquePredicates;
     }
@@ -64,6 +79,7 @@ public class StatsTracker {
         return totalUniqueObjects;
     }
 
+    @XmlElement
     public void setTotalUniqueObjects(long totalUniqueObjects) {
         this.totalUniqueObjects = totalUniqueObjects;
     }
@@ -72,6 +88,7 @@ public class StatsTracker {
         return totalUnclosedStands;
     }
 
+    @XmlElement
     public void setTotalUnclosedStands(int totalUnclosedStands) {
         this.totalUnclosedStands = totalUnclosedStands;
     }
@@ -80,6 +97,7 @@ public class StatsTracker {
         return earliestDateTime;
     }
 
+    @XmlElement
     public void setEarliestDateTime(String earliestDateTime) {
         this.earliestDateTime = earliestDateTime;
     }
@@ -88,14 +106,25 @@ public class StatsTracker {
         return earliestDateTimeRange;
     }
 
+    @XmlElement
     public void setEarliestDateTimeRange(String earliestDateTimeRange) {
         this.earliestDateTimeRange = earliestDateTimeRange;
+    }
+
+    public String getLatestDateTimeRange() {
+        return latestDateTimeRange;
+    }
+
+    @XmlElement
+    public void setLatestDateTimeRange(String latestDateTimeRange) {
+        this.latestDateTimeRange = latestDateTimeRange;
     }
 
     public String getIdOfEarliestStand() {
         return idOfEarliestStand;
     }
 
+    @XmlElement
     public void setIdOfEarliestStand(String idOfEarliestStand) {
         this.idOfEarliestStand = idOfEarliestStand;
     }
@@ -104,6 +133,7 @@ public class StatsTracker {
         return pathOfEarliestStand;
     }
 
+    @XmlElement
     public void setPathOfEarliestStand(String pathOfEarliestStand) {
         this.pathOfEarliestStand = pathOfEarliestStand;
     }
@@ -112,6 +142,7 @@ public class StatsTracker {
         return rawOutput;
     }
 
+    @XmlElement
     public void setRawOutput(String rawOutput) {
         this.rawOutput = rawOutput;
     }

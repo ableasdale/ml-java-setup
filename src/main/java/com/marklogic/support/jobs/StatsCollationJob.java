@@ -24,11 +24,8 @@ public class StatsCollationJob implements Job {
         // TODO - get XCC to return the necessary data and turn into the necessary Java Object
         Statistics.getStatisticsMap().put("x"+UUID.randomUUID(), null);
         LOG.info("Map Size: " + Statistics.getStatisticsMap().size());
-        //LOG.debug("DataLoaderJob: Loading more documents into MarkLogic Server...");
-        //Util.loadSampleDataIntoMarkLogic(hosts,databases,databaseStringRangeIndexes);
-        // TODO - this is hardcoded to get the first item right now!  Would need to be modified for multiple databases
-        //LOG.info(Util.processHttpRequestAndGetBody(Requests.evaluateXQuery(hosts[0], XQueryBuilder.evaluateXQueryModuleAgainstDatabase(databases[0], "src/main/resources/triple-stats.xqy") )));
-        //LOG.info(Util.processHttpRequestAndGetBody(Requests.evaluateXQuery(hosts[0], XQueryBuilder.evaluateXQueryModuleAgainstDatabase(databases[0], "src/main/resources/dump-unclosed-stands.xqy") )));
 
+        // Note: this is hardcoded to get the first item right now - this is okay for my current testing but should be fixed so we store these maps for each database and handle reporting accordingly (TODO)
+        LOG.info(Util.processHttpRequestAndGetBody(Requests.evaluateXQuery(hosts[0], XQueryBuilder.evaluateXQueryModuleAgainstDatabase(databases[0], "src/main/resources/create-stats-tracker-xml.xqy") )));
     }
 }

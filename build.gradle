@@ -20,7 +20,8 @@ repositories {
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.1.0-RC1'
+
     compile 'com.hierynomus:sshj:0.23.0'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
     compile group: 'net.sf.expectit', name: 'expectit-core', version: '0.8.3'
