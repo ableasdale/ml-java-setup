@@ -344,5 +344,9 @@ public class Util {
         }
     }
 
+    public static String extractTimeFromDateTime(String dateTime){
+        return dateTime.substring(dateTime.indexOf('T')+1, dateTime.indexOf('.'));
+    }
+
 
 }
