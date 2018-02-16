@@ -8,14 +8,16 @@
 
       function drawChart() {
         var data = google.visualization.arrayToDataTable([
-          ['DateTime', 'Count'],
+          ['DateTime', 'Unclosed Stand Ref Count'],
           %%
         ]);
 
         var options = {
           title: 'Unclosed Stands Over Time',
           curveType: 'function',
-          legend: { position: 'bottom' }
+          legend: { position: 'bottom' },
+          vAxis: { viewWindow: { min: 0 }},
+          hAxis: { slantedText: true, slantedTextAngle: 45 }
         };
 
         var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
