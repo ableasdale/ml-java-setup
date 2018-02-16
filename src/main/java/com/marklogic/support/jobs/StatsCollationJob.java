@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.UUID;
 
 public class StatsCollationJob implements Job {
 
@@ -21,7 +22,7 @@ public class StatsCollationJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         // TODO - get XCC to return the necessary data and turn into the necessary Java Object
-        Statistics.getStatisticsMap().put("x", null);
+        Statistics.getStatisticsMap().put("x"+UUID.randomUUID(), null);
         LOG.info("Map Size: " + Statistics.getStatisticsMap().size());
         //LOG.debug("DataLoaderJob: Loading more documents into MarkLogic Server...");
         //Util.loadSampleDataIntoMarkLogic(hosts,databases,databaseStringRangeIndexes);

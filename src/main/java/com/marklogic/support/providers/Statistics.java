@@ -27,6 +27,6 @@ public class Statistics {
     }
 
     public static Map getStatisticsMap() {
-        return statsTrackerMap;
+        return getInstance().statsTrackerMap;
     }
 }

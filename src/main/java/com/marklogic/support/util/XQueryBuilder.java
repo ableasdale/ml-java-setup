@@ -172,7 +172,7 @@ $value as xs:boolean
    [$backup-passphrase as xs:string?]
 ) as xs:unsignedLong */
         }
-        LOG.info(sb.toString());
+        // LOG.info(sb.toString());
         return prepareEncodedXQuery(sb);
     }
 

@@ -1,5 +1,10 @@
 package com.marklogic.support.beans;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 public class StatsTracker {
 
     private String dateTimeOnServer;
