@@ -2,7 +2,6 @@ package com.marklogic.support;
 
 import com.marklogic.support.actions.BaseSystemConfiguration;
 import com.marklogic.support.beans.SSHClientConnection;
-import com.marklogic.support.beans.StatsTracker;
 import com.marklogic.support.jobs.ClusterInformationGathererJob;
 import com.marklogic.support.jobs.DataLoaderJob;
 import com.marklogic.support.jobs.StatsCollationJob;
@@ -34,11 +33,9 @@ public class MultiNodeClusterSetupObsStd {
     private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private static ExecutorService es = Executors.newFixedThreadPool(64);
 
-    // TODO - pass in the stats Tracker?
-    private static Map<Date, StatsTracker> statsTrackerMap = new LinkedHashMap<Date, StatsTracker>();
-
     public static void main(String[] args) {
 
+        Util.startHttpServer();
         Util.jcePolicyFix();
         String[] hosts = Util.getConfiguration().getStringArray("hosts");
         String[] databases = Util.getConfiguration().getStringArray("databases");

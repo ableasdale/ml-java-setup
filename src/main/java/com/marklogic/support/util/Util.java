@@ -6,6 +6,10 @@ import com.burgstaller.okhttp.digest.CachingAuthenticator;
 import com.burgstaller.okhttp.digest.Credentials;
 import com.burgstaller.okhttp.digest.DigestAuthenticator;
 import com.marklogic.support.beans.SSHClientConnection;
+import io.undertow.Undertow;
+import io.undertow.server.HttpHandler;
+import io.undertow.server.HttpServerExchange;
+import io.undertow.util.Headers;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.common.IOUtils;
 import net.schmizz.sshj.connection.ConnectionException;
@@ -31,6 +35,8 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.Security;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -300,6 +306,20 @@ public class Util {
                 //Util.processHttpRequest(Requests.evaluateXQuery(h, XQueryBuilder.evaluateXQueryModuleAgainstDatabase(d)));
             }
         }
+    }
+
+    public static void startHttpServer(){
+        Undertow server = Undertow.builder()
+                .addHttpListener(8080, "localhost")
+                .setHandler(new HttpHandler() {
+
+                    @Override
+                    public void handleRequest(final HttpServerExchange exchange) throws Exception {
+                        exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/html");
+                        exchange.getResponseSender().send(new String(Files.readAllBytes(Paths.get("src/main/resources/google-charts-html"))));
+                    }
+                }).build();
+        server.start();
     }
 
 

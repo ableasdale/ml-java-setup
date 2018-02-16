@@ -34,6 +34,9 @@ dependencies {
     // OkHttp
     compile group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.9.0'
     compile group: 'com.burgstaller', name: 'okhttp-digest', version: '1.15'
+
+    compile 'io.undertow:undertow-core:2.0.0.Beta1'
+    compile group: 'com.marklogic', name: 'marklogic-xcc', version: '9.0.4'
 }
 
 task wrapper(type: Wrapper) {
