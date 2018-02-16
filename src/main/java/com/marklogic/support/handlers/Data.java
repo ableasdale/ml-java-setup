@@ -6,8 +6,11 @@ import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import java.io.StringWriter;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public class Data implements HttpHandler {
 
@@ -22,23 +25,25 @@ public class Data implements HttpHandler {
         exchange.getResponseSender().send(everythingInMap());
     }
 
-    public String everythingInMap() {
+    public String getXmlAsString(StatsTracker s) {
+        Marshaller jaxbMarshaller = null;
+        try {
+            JAXBContext jaxbContext = JAXBContext.newInstance(StatsTracker.class);
+            jaxbMarshaller = jaxbContext.createMarshaller();
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            StringWriter sw = new StringWriter();
+            jaxbMarshaller.marshal(s, sw);
+            return sw.toString();
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+        return "NULL";
+    }
 
+    public String everythingInMap() {
         Map m = Statistics.getStatisticsMap();
         StringBuilder sb = new StringBuilder();
-
-
-        m.forEach( (k,v) -> sb.append("Key: " + k + " : Value: " + v +"\n"));
-
-//        for (Entry<?,?> entry : m.entrySet()) {
-//            System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
-//        }
-//
-//
-//        for ((String)k : m.keySet()) {
-//            System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
-//        }
-//        LOG.info("\n\nMap Size: " + Statistics.getStatisticsMap().size());
+        m.forEach( (k, v) -> sb.append("Key: " + k + " : Value: " + getXmlAsString((StatsTracker) v) +"\n"));
         return sb.toString();
     }
 
