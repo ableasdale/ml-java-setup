@@ -1,3 +1,4 @@
+import com.marklogic.support.beans.BackupStats;
 import com.marklogic.support.beans.StatsTracker;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -26,6 +27,8 @@ public class TestJAXBMarshalling {
             " Id: 15623427714656129849 Path: /space/data/Forests/PrimaryApplication-3/00000017 Earliest: 2018-02-16T01:58:05-08:00 Latest: 2018-02-16T01:59:57-08:00 \n" +
             " Id: 10433488193259735779 Path: /space/data/Forests/PrimaryApplication-5/00000019 Earliest: 2018-02-16T01:58:49-08:00 Latest: 2018-02-16T01:59:00-08:00 \n" +
             "</rawOutput></statsTracker>";
+
+    String backupXml = "<backupStats><dateTimeOnServer>2018-02-17T03:33:37.82739-08:00</dateTimeOnServer><totalOverallBackupJobs>278</totalOverallBackupJobs><totalCompletedStatus>1046</totalCompletedStatus><totalNotCompletedStatus>1454</totalNotCompletedStatus><rawOutput>~~~</rawOutput></backupStats>";
 
     @Test
     void testXmlStructureFromBean() {
@@ -85,6 +88,51 @@ public class TestJAXBMarshalling {
     assertEquals("2018-02-16T02:00:17.512307-08:00", s.getDateTimeOnServer());
     assertEquals("PT4M30.512307S", s.getAgeOfEarliestDateTime());
     //LOG.info("Datetime: "+ s.getDateTimeOnServer());
+
+    }
+
+    @Test
+    void testXmlStructureFromBackupStats() {
+        BackupStats b = new BackupStats();
+
+        b.setDateTimeOnServer("2018-02-16T02:00:17.512307-08:00");
+        b.setTotalCompletedStatus(12);
+        b.setTotalNotCompletedStatus(9);
+        b.setTotalOverallBackupJobs(5);
+        b.setRawOutput("raw output");
+
+
+        try {
+
+            JAXBContext jaxbContext = JAXBContext.newInstance(BackupStats.class);
+            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+
+            // output pretty printed
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+            jaxbMarshaller.marshal(b, System.out);
+            // jaxbMarshaller.ma
+            //LOG.info(s);
+
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test
+    void testBackupDataFromXMLString() throws JAXBException {
+
+        JAXBContext jaxbContext = JAXBContext.newInstance(BackupStats.class);
+        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+
+        StringReader reader = new StringReader(backupXml);
+        BackupStats b = (BackupStats) unmarshaller.unmarshal(reader);
+
+        assertEquals("2018-02-17T03:33:37.82739-08:00", b.getDateTimeOnServer());
+        assertEquals(1046, b.getTotalCompletedStatus());
+        assertEquals(278, b.getTotalOverallBackupJobs());
+        //LOG.info("Datetime: "+ s.getDateTimeOnServer());
 
     }
 
