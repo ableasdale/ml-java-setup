@@ -1,5 +1,6 @@
 package com.marklogic.support.handlers;
 
+import com.marklogic.support.beans.BackupStats;
 import com.marklogic.support.beans.StatsTracker;
 import com.marklogic.support.providers.Statistics;
 import com.marklogic.support.util.Util;
@@ -23,6 +24,19 @@ public class Dashboard implements HttpHandler {
     private String createChartView() {
         StringBuilder sb = new StringBuilder();
         StringBuilder sb2 = new StringBuilder();
+        StringBuilder sb3 = new StringBuilder();
+
+        Map m1 = Statistics.getBackupStatisticsMap();
+        if (m1.size() > 0) {
+            m1.forEach((k,v) -> {
+                BackupStats s = (BackupStats) v;
+                sb3.append("['").append(Util.extractTimeFromDateTime(s.getDateTimeOnServer())).append("',").append(s.getTotalOverallBackupJobs()).append(",").append(s.getTotalCompletedStatus()).append(",").append(s.getTotalNotCompletedStatus()).append("],");
+            });
+
+        } else {
+            sb3.append("['No Data...',0,0,0]");
+        }
+
 
         Map m = Statistics.getStatisticsMap();
         if (m.size() > 0) {
@@ -39,7 +53,8 @@ public class Dashboard implements HttpHandler {
         try {
             String page = new String(Files.readAllBytes(Paths.get("src/main/resources/google-charts-html")));
             String page2 = page.replace("%1%", sb.toString());
-            return page2.replace("%2%", sb2.toString());
+            String page3 = page2.replace("%2%", sb2.toString());
+            return page3.replace("%3%", sb3.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }

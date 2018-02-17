@@ -6,7 +6,7 @@
             google.charts.load('current', {'packages':['corechart']});
             google.charts.setOnLoadCallback(drawChart);
             google.charts.setOnLoadCallback(drawChart2);
-            google.charts.setOnLoadCallback(drawChart2);
+            google.charts.setOnLoadCallback(drawChart3);
 
             function drawChart() {
                 var data = google.visualization.arrayToDataTable([
@@ -50,11 +50,31 @@
 
                   chart.draw(data, options);
             }
+
+            function drawChart3() {
+                  var data = google.visualization.arrayToDataTable([
+                    ['DateTime', 'Total overall backups', 'Total jobs completed', 'Total jobs not complete'],
+                    %3%
+                  ]);
+
+                  var options = {
+                    title: 'Number of Backups created',
+                    curveType: 'function',
+                    legend: { position: 'bottom' },
+                    vAxis: { viewWindow: { min: 0 }},
+                    hAxis: { slantedText: true, slantedTextAngle: 45 }
+                  };
+
+                  var chart = new google.visualization.LineChart(document.getElementById('backup_chart'));
+
+                  chart.draw(data, options);
+            }
         </script>
     </head>
     <body>
         <div id="curve_chart" style="width: 100%; height: 100%"></div>
         <div id='png'></div>
+        <div id="backup_chart" style="width: 100%; height: 100%"></div>
         <div id="docs_chart" style="width: 100%; height: 100%"></div>
     </body>
 </html>
