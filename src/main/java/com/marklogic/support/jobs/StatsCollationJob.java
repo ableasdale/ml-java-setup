@@ -1,5 +1,6 @@
 package com.marklogic.support.jobs;
 
+import com.marklogic.support.beans.BackupStats;
 import com.marklogic.support.beans.StatsTracker;
 import com.marklogic.support.providers.MarkLogicContentSourceProvider;
 import com.marklogic.support.providers.Statistics;
@@ -31,19 +32,25 @@ public class StatsCollationJob implements Job {
         // Note: this is hardcoded to get the first item right now - this is okay for my current testing but should be fixed so we store these maps for each database and handle reporting accordingly (TODO)
         try {
             Session s = MarkLogicContentSourceProvider.getInstance().getContentSource().newSession(databases[0]);
+
             Request r = s.newAdhocQuery(new String(Files.readAllBytes(Paths.get("src/main/resources/create-stats-tracker-xml.xqy"))));
             ResultSequence rs = s.submitRequest(r);
             StatsTracker st = Util.createStatsObjectFromXml(rs.asString());
             Statistics.getStatisticsMap().put(st.getDateTimeOnServer(), st);
-            LOG.info("Map Size: " + Statistics.getStatisticsMap().size());
             rs.close();
+
+            r = s.newAdhocQuery(new String(Files.readAllBytes(Paths.get("src/main/resources/backup-status.xqy"))));
+            rs = s.submitRequest(r);
+            BackupStats b = Util.createBackupDataObjectFromXml(rs.asString());
+            Statistics.getBackupStatisticsMap().put(b.getDateTimeOnServer(), b);
+            rs.close();
+
+            LOG.info("Stats Map Size: " + Statistics.getStatisticsMap().size() + " BackupStats Map Size: " + Statistics.getBackupStatisticsMap().size());
             s.close();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (RequestException e) {
             e.printStackTrace();
         }
-
-
     }
 }

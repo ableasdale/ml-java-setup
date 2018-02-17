@@ -5,8 +5,10 @@ import com.burgstaller.okhttp.CachingAuthenticatorDecorator;
 import com.burgstaller.okhttp.digest.CachingAuthenticator;
 import com.burgstaller.okhttp.digest.Credentials;
 import com.burgstaller.okhttp.digest.DigestAuthenticator;
+import com.marklogic.support.beans.BackupStats;
 import com.marklogic.support.beans.SSHClientConnection;
 import com.marklogic.support.beans.StatsTracker;
+import com.marklogic.support.handlers.BackupInfo;
 import com.marklogic.support.handlers.Dashboard;
 import com.marklogic.support.handlers.Data;
 import io.undertow.Undertow;
@@ -320,7 +322,8 @@ public class Util {
     // TODO - probably put this in a separate class?
     public static final RoutingHandler ROUTES = new RoutingHandler()
             .get("/", new Dashboard())
-            .get("/data", new Data("ff"));
+            .get("/data", new Data("data stats"))
+            .get("/backup", new BackupInfo("backup info"));
 
 
     public static void startHttpServer(){
@@ -338,6 +341,19 @@ public class Util {
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             StringReader reader = new StringReader(xml);
             return (StatsTracker) unmarshaller.unmarshal(reader);
+        } catch (JAXBException e) {
+            LOG.error("Unable to create Java Object from XML content from MarkLogic: "+xml,e);
+            return null;
+        }
+    }
+
+    public static BackupStats createBackupDataObjectFromXml(String xml){
+        JAXBContext jaxbContext = null;
+        try {
+            jaxbContext = JAXBContext.newInstance(BackupStats.class);
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            StringReader reader = new StringReader(xml);
+            return (BackupStats) unmarshaller.unmarshal(reader);
         } catch (JAXBException e) {
             LOG.error("Unable to create Java Object from XML content from MarkLogic: "+xml,e);
             return null;

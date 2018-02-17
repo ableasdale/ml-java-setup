@@ -1,5 +1,6 @@
 package com.marklogic.support.providers;
 
+import com.marklogic.support.beans.BackupStats;
 import com.marklogic.support.beans.StatsTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +13,11 @@ public class Statistics {
 
     private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private static Map<String, StatsTracker> statsTrackerMap;
+    private static Map<String, BackupStats> backupStatsMap;
 
     private Statistics() {
         statsTrackerMap = new LinkedHashMap<>();
+        backupStatsMap = new LinkedHashMap<>();
     }
 
     private static class LazyHolder {
@@ -27,5 +30,9 @@ public class Statistics {
 
     public static Map getStatisticsMap() {
         return getInstance().statsTrackerMap;
+    }
+
+    public static Map getBackupStatisticsMap() {
+        return getInstance().backupStatsMap;
     }
 }
