@@ -1,32 +1,60 @@
 <html>
-  <head>
-    <meta http-equiv="refresh" content="60" />
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script type="text/javascript">
-      google.charts.load('current', {'packages':['corechart']});
-      google.charts.setOnLoadCallback(drawChart);
+    <head>
+        <meta http-equiv="refresh" content="60" />
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript">
+            google.charts.load('current', {'packages':['corechart']});
+            google.charts.setOnLoadCallback(drawChart);
+            google.charts.setOnLoadCallback(drawChart2);
+            google.charts.setOnLoadCallback(drawChart2);
 
-      function drawChart() {
-        var data = google.visualization.arrayToDataTable([
-          ['DateTime', 'Unclosed Stand Ref Count'],
-          %%
-        ]);
+            function drawChart() {
+                var data = google.visualization.arrayToDataTable([
+                    ['DateTime', 'Unclosed Stand Ref Count'],
+                    %1%
+                ]);
 
-        var options = {
-          title: 'Unclosed Stands Over Time',
-          curveType: 'function',
-          legend: { position: 'bottom' },
-          vAxis: { viewWindow: { min: 0 }},
-          hAxis: { slantedText: true, slantedTextAngle: 45 }
-        };
+                var options = {
+                    title: 'Unclosed Stands Over Time',
+                    curveType: 'function',
+                    legend: { position: 'bottom' },
+                    vAxis: { viewWindow: { min: 0 }},
+                    hAxis: { slantedText: true, slantedTextAngle: 45 }
+                };
 
-        var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+                var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
 
-        chart.draw(data, options);
-      }
-    </script>
-  </head>
-  <body>
-    <div id="curve_chart" style="width: 100%; height: 100%"></div>
-  </body>
+                google.visualization.events.addListener(chart, 'ready', function () {
+                    //curve_chart.innerHTML = '<img src="' + chart.getImageURI() + '">';
+                    document.getElementById('png').outerHTML = '<a href="' + chart.getImageURI() + '">Printable version</a>';
+                });
+
+                chart.draw(data, options);
+            }
+
+            function drawChart2() {
+                  var data = google.visualization.arrayToDataTable([
+                    ['DateTime', 'Total Docs'],
+                    %2%
+                  ]);
+
+                  var options = {
+                    title: 'Number of Documents loaded',
+                    curveType: 'function',
+                    legend: { position: 'bottom' },
+                    vAxis: { viewWindow: { min: 0 }},
+                    hAxis: { slantedText: true, slantedTextAngle: 45 }
+                  };
+
+                  var chart = new google.visualization.LineChart(document.getElementById('docs_chart'));
+
+                  chart.draw(data, options);
+            }
+        </script>
+    </head>
+    <body>
+        <div id="curve_chart" style="width: 100%; height: 100%"></div>
+        <div id='png'></div>
+        <div id="docs_chart" style="width: 100%; height: 100%"></div>
+    </body>
 </html>
