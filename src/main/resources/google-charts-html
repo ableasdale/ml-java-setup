@@ -34,12 +34,12 @@
 
             function drawChart2() {
                   var data = google.visualization.arrayToDataTable([
-                    ['DateTime', 'Total Docs'],
+                    ['DateTime', 'Total Documents', 'Total Triples', 'Total Unique Subjects', 'Total Unique Predicates', 'Total Unique Objects'],
                     %2%
                   ]);
 
                   var options = {
-                    title: 'Number of Documents loaded',
+                    title: 'Database Statistics',
                     curveType: 'function',
                     legend: { position: 'bottom' },
                     vAxis: { viewWindow: { min: 0 }},

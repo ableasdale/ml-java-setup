@@ -43,11 +43,11 @@ public class Dashboard implements HttpHandler {
             m.forEach((k, v) -> {
                 StatsTracker s = (StatsTracker) v;
                 sb.append("['").append(Util.extractTimeFromDateTime(s.getDateTimeOnServer())).append("',").append(s.getTotalUnclosedStands()).append("],");
-                sb2.append("['").append(Util.extractTimeFromDateTime(s.getDateTimeOnServer())).append("',").append(s.getTotalDocs()).append("],");
+                sb2.append("['").append(Util.extractTimeFromDateTime(s.getDateTimeOnServer())).append("',").append(s.getTotalDocs()).append("',").append(s.getTotalTriples()).append("',").append(s.getTotalUniqueSubjects()).append("',").append(s.getTotalUniquePredicates()).append("',").append(s.getTotalUniqueObjects()).append("],");
             });
         } else {
             sb.append("['No Data...',0]"); // waiting for data
-            sb2.append("['No Data...',0]"); // waiting for data
+            sb2.append("['No Data...',0,0,0,0,0]"); // waiting for data
         }
 
         try {
