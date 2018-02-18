@@ -1,101 +1,140 @@
-<html>
-    <head>
-        <meta http-equiv="refresh" content="60" />
-        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-        <script type="text/javascript">
-            google.charts.load('current', {'packages':['corechart']});
-            google.charts.setOnLoadCallback(drawChart);
-            google.charts.setOnLoadCallback(drawChart2);
-            google.charts.setOnLoadCallback(drawChart3);
-            google.charts.setOnLoadCallback(drawChart4);
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="refresh" content="60" />
 
-            function drawChart() {
-                var data = google.visualization.arrayToDataTable([
-                    ['DateTime', 'Unclosed Stand Ref Count'],
-                    %1%
-                ]);
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-                var options = {
-                    title: 'Unclosed Stands Over Time',
-                    curveType: 'function',
-                    legend: { position: 'bottom' },
-                    vAxis: { viewWindow: { min: 0 }},
-                    hAxis: { slantedText: true, slantedTextAngle: 45 }
-                };
+    <title>Dashboard</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" href="#">Dashboard</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-                var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/data">Stats Data</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="/backup">Backup Data</a></li>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div id="curve_chart" style="width: 100%; height: 600px"></div>
+        <div id="png"></div>
+        <div id="backup_chart" style="width: 100%; height: 600px"></div>
+        <div id="png2"></div>
+        <div class="row">
+            <div class="col"><div id="docs_chart" style="width: 100%; height: 300px"></div></div>
+            <div class="col"><div id="triples_chart" style="width: 100%; height: 300px"></div></div>
+        </div>
+    </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+        google.charts.setOnLoadCallback(drawChart2);
+        google.charts.setOnLoadCallback(drawChart3);
+        google.charts.setOnLoadCallback(drawChart4);
 
-                google.visualization.events.addListener(chart, 'ready', function () {
-                    //curve_chart.innerHTML = '<img src="' + chart.getImageURI() + '">';
-                    document.getElementById('png').outerHTML = '<a href="' + chart.getImageURI() + '">Printable version</a>';
-                });
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable([
+                ['DateTime', 'Unclosed Stand Ref Count'],
+                %1%
+            ]);
 
-                chart.draw(data, options);
-            }
+            var options = {
+                title: 'Unclosed Stands Over Time',
+                curveType: 'function',
+                legend: { position: 'bottom' },
+                vAxis: { viewWindow: { min: 0 }},
+                hAxis: { slantedText: true, slantedTextAngle: 45 }
+            };
 
-            function drawChart2() {
-                  var data = google.visualization.arrayToDataTable([
-                    ['DateTime', 'Total Documents', 'Total Unique Subjects', 'Total Unique Predicates'],
-                    %2%
-                  ]);
+            var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
 
-                  var options = {
-                    title: 'Database Statistics',
-                    curveType: 'function',
-                    legend: { position: 'bottom' },
-                    vAxis: { viewWindow: { min: 0 }},
-                    hAxis: { slantedText: true, slantedTextAngle: 45 }
-                  };
+            google.visualization.events.addListener(chart, 'ready', function () {
+                document.getElementById('png').outerHTML = '<p class="text-center"><a href="' + chart.getImageURI() + '">Printable version</a></p>';
+            });
 
-                  var chart = new google.visualization.LineChart(document.getElementById('docs_chart'));
+            chart.draw(data, options);
+        }
 
-                  chart.draw(data, options);
-            }
+        function drawChart2() {
+              var data = google.visualization.arrayToDataTable([
+                ['DateTime', 'Total Documents', 'Total Unique Subjects', 'Total Unique Predicates'],
+                %2%
+              ]);
 
-            function drawChart3() {
-                  var data = google.visualization.arrayToDataTable([
-                    ['DateTime', 'Total overall backups', 'Total jobs completed', 'Total jobs not complete'],
-                    %3%
-                  ]);
+              var options = {
+                title: 'Database Statistics',
+                curveType: 'function',
+                legend: { position: 'bottom' },
+                vAxis: { viewWindow: { min: 0 }},
+                hAxis: { slantedText: true, slantedTextAngle: 45 }
+              };
 
-                  var options = {
-                    title: 'Number of Backups created',
-                    curveType: 'function',
-                    legend: { position: 'bottom' },
-                    vAxis: { viewWindow: { min: 0 }},
-                    hAxis: { slantedText: true, slantedTextAngle: 45 }
-                  };
+              var chart = new google.visualization.LineChart(document.getElementById('docs_chart'));
 
-                  var chart = new google.visualization.LineChart(document.getElementById('backup_chart'));
+              chart.draw(data, options);
+        }
 
-                  chart.draw(data, options);
-            }
+        function drawChart3() {
+              var data = google.visualization.arrayToDataTable([
+                ['DateTime', 'Total overall backups', 'Total jobs completed', 'Total jobs not complete'],
+                %3%
+              ]);
 
-            function drawChart4() {
-                  var data = google.visualization.arrayToDataTable([
-                    ['DateTime', 'Total triples'],
-                    %4%
-                  ]);
+              var options = {
+                title: 'Number of Backups created',
+                curveType: 'function',
+                legend: { position: 'bottom' },
+                vAxis: { viewWindow: { min: 0 }},
+                hAxis: { slantedText: true, slantedTextAngle: 45 }
+              };
 
-                  var options = {
-                    title: 'Number of triples in database',
-                    curveType: 'function',
-                    legend: { position: 'bottom' },
-                    vAxis: { viewWindow: { min: 0 }},
-                    hAxis: { slantedText: true, slantedTextAngle: 45 }
-                  };
+              var chart = new google.visualization.LineChart(document.getElementById('backup_chart'));
 
-                  var chart = new google.visualization.LineChart(document.getElementById('triples_chart'));
+              google.visualization.events.addListener(chart, 'ready', function () {
+                document.getElementById('png2').outerHTML = '<p class="text-center"><a href="' + chart.getImageURI() + '">Printable version</a></p>';
+              });
 
-                  chart.draw(data, options);
-            }
-        </script>
-    </head>
-    <body>
-        <div id="curve_chart" style="width: 100%; height: 100%"></div>
-        <div id='png'></div>
-        <div id="backup_chart" style="width: 100%; height: 100%"></div>
-        <div id="docs_chart" style="width: 100%; height: 100%"></div>
-        <div id="triples_chart" style="width: 100%; height: 100%"></div>
-    </body>
+              chart.draw(data, options);
+        }
+
+        function drawChart4() {
+              var data = google.visualization.arrayToDataTable([
+                ['DateTime', 'Total triples'],
+                %4%
+              ]);
+
+              var options = {
+                title: 'Number of triples in database',
+                curveType: 'function',
+                legend: { position: 'bottom' },
+                vAxis: { viewWindow: { min: 0 }},
+                hAxis: { slantedText: true, slantedTextAngle: 45 }
+              };
+
+              var chart = new google.visualization.LineChart(document.getElementById('triples_chart'));
+
+              chart.draw(data, options);
+        }
+    </script>
+  </body>
 </html>
