@@ -43,7 +43,7 @@ public class Data implements HttpHandler {
     public String everythingInMap() {
         Map m = Statistics.getStatisticsMap();
         StringBuilder sb = new StringBuilder();
-        m.forEach( (k, v) -> sb.append("Key: " + k + " : Value: " + getXmlAsString((StatsTracker) v) +"\n"));
+        m.forEach( (k, v) -> sb.append("Key: " + k + "\nValue: " + getXmlAsString((StatsTracker) v) +"\n"));
         return sb.toString();
     }
 

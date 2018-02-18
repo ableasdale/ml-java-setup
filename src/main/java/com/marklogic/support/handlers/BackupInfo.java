@@ -43,7 +43,7 @@ public class BackupInfo implements HttpHandler {
     public String everythingInMap() {
         Map m = Statistics.getBackupStatisticsMap();
         StringBuilder sb = new StringBuilder();
-        m.forEach( (k, v) -> sb.append("Key: " + k + " : Value: " + getXmlAsString((BackupStats) v) +"\n"));
+        m.forEach( (k, v) -> sb.append("Key: " + k + "\nValue: " + getXmlAsString((BackupStats) v) +"\n"));
         return sb.toString();
     }
 
