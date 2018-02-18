@@ -22,19 +22,20 @@ public class Dashboard implements HttpHandler {
     }
 
     private String createChartView() {
-        StringBuilder sb = new StringBuilder();
-        StringBuilder sb2 = new StringBuilder();
-        StringBuilder sb3 = new StringBuilder();
+        StringBuilder unclosedStands = new StringBuilder();
+        StringBuilder documentStats = new StringBuilder();
+        StringBuilder backUpStats = new StringBuilder();
+        StringBuilder tripleCount = new StringBuilder();
 
         Map m1 = Statistics.getBackupStatisticsMap();
         if (m1.size() > 0) {
             m1.forEach((k,v) -> {
                 BackupStats s = (BackupStats) v;
-                sb3.append("['").append(Util.extractTimeFromDateTime(s.getDateTimeOnServer())).append("',").append(s.getTotalOverallBackupJobs()).append(",").append(s.getTotalCompletedStatus()).append(",").append(s.getTotalNotCompletedStatus()).append("],");
+                backUpStats.append("['").append(Util.extractTimeFromDateTime(s.getDateTimeOnServer())).append("',").append(s.getTotalOverallBackupJobs()).append(",").append(s.getTotalCompletedStatus()).append(",").append(s.getTotalNotCompletedStatus()).append("],");
             });
 
         } else {
-            sb3.append("['No Data...',0,0,0]");
+            backUpStats.append("['No Data...',0,0,0]");
         }
 
 
@@ -42,19 +43,22 @@ public class Dashboard implements HttpHandler {
         if (m.size() > 0) {
             m.forEach((k, v) -> {
                 StatsTracker s = (StatsTracker) v;
-                sb.append("['").append(Util.extractTimeFromDateTime(s.getDateTimeOnServer())).append("',").append(s.getTotalUnclosedStands()).append("],");
-                sb2.append("['").append(Util.extractTimeFromDateTime(s.getDateTimeOnServer())).append("',").append(s.getTotalDocs()).append("',").append(s.getTotalTriples()).append("',").append(s.getTotalUniqueSubjects()).append("',").append(s.getTotalUniquePredicates()).append("',").append(s.getTotalUniqueObjects()).append("],");
+                unclosedStands.append("['").append(Util.extractTimeFromDateTime(s.getDateTimeOnServer())).append("',").append(s.getTotalUnclosedStands()).append("],");
+                documentStats.append("['").append(Util.extractTimeFromDateTime(s.getDateTimeOnServer())).append("',").append(s.getTotalDocs()).append(",").append(s.getTotalUniqueSubjects()).append(",").append(s.getTotalUniquePredicates()).append("],");
+                tripleCount.append("['").append(Util.extractTimeFromDateTime(s.getDateTimeOnServer())).append("',").append(s.getTotalTriples()).append("],");
             });
         } else {
-            sb.append("['No Data...',0]"); // waiting for data
-            sb2.append("['No Data...',0,0,0,0,0]"); // waiting for data
+            unclosedStands.append("['No Data...',0]"); // waiting for data
+            documentStats.append("['No Data...',0,0,0]"); // waiting for data
+            tripleCount.append("['No Data...',0]");
         }
 
         try {
             String page = new String(Files.readAllBytes(Paths.get("src/main/resources/google-charts-html")));
-            String page2 = page.replace("%1%", sb.toString());
-            String page3 = page2.replace("%2%", sb2.toString());
-            return page3.replace("%3%", sb3.toString());
+            String page2 = page.replace("%1%", unclosedStands.toString());
+            String page3 = page2.replace("%2%", documentStats.toString());
+            String page4 = page3.replace("%3%", backUpStats.toString());
+            return page4.replace("%4%", tripleCount.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
