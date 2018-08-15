@@ -4,6 +4,7 @@ import com.marklogic.support.util.MarkLogicConfig;
 import com.marklogic.support.util.Requests;
 import com.marklogic.support.util.Util;
 import com.marklogic.support.util.XQueryBuilder;
+import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +16,9 @@ public class AWSClusterSetup {
 
     public static void main(String[] args) {
         String[] hosts = Util.getConfiguration().getStringArray("hosts");
+        LOG.info(String.format("Running /admin/v1/init on host %s", hosts[0]));
+        Response response = Util.processHttpRequest(Requests.initMarkLogicNode(hosts[0]));
+        LOG.info(String.format("Response Code: %d", response.code()));
         // Part Two - Initialize the primary node using the MarkLogic ReST API
         Util.processHttpRequest(Requests.configurePrimaryNode(hosts[0]));
         LOG.info(String.format("Master host (%s) should now be configured with the default databases", hosts[0]));
@@ -32,6 +36,9 @@ public class AWSClusterSetup {
 
         // Part Three - Join all additional nodes to the master host
         for (int i = 1; i < hosts.length; i++) {
+            LOG.info(String.format("Running /admin/v1/init on host %s", hosts[i]));
+            Response response2 = Util.processHttpRequest(Requests.initMarkLogicNode(hosts[i]));
+            LOG.info(String.format("Response Code: %d", response2.code()));
             MarkLogicConfig.addHostToCluster(hosts[i], hosts[0]);
         }
     }
